@@ -1,0 +1,82 @@
+version: "3.9"
+
+services:
+
+  # ── MongoDB ────────────────────────────────────────────────────────────────
+  mongodb:
+    image: mongo:7.0
+    container_name: hanami_mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: hanami
+      MONGO_INITDB_ROOT_PASSWORD: hanami_secret
+      MONGO_INITDB_DATABASE: hanami
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./docker/mongo-init.js:/docker-entrypoint-initdb.d/init.js:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis ──────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7.2-alpine
+    container_name: hanami_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # ── Mongo Express (DB GUI) ─────────────────────────────────────────────────
+  mongo-express:
+    image: mongo-express:1.0
+    container_name: hanami_mongo_express
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: hanami
+      ME_CONFIG_MONGODB_ADMINPASSWORD: hanami_secret
+      ME_CONFIG_MONGODB_URL: mongodb://hanami:hanami_secret@mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin123
+
+  # ── API (optional: run locally with pnpm dev:api instead) ─────────────────
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: hanami_api
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "4000:4000"
+    env_file:
+      - apps/api/.env
+    environment:
+      MONGODB_URI: mongodb://hanami:hanami_secret@mongodb:27017/hanami?authSource=admin
+      REDIS_URL: redis://redis:6379
+    profiles:
+      - full   # only starts with: docker compose --profile full up
+
+volumes:
+  mongodb_data:
+  redis_data:

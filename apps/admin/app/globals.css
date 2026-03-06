@@ -1,0 +1,49 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-destructive: var(--destructive);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+}
+
+:root {
+  --radius: 0.5rem;
+  --background: #f8f9fb;
+  --foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --primary: oklch(0.74 0.21 350);
+  --primary-foreground: #ffffff;
+  --muted: #fdf0f9;
+  --muted-foreground: #9b6880;
+  --border: #f5d0e8;
+  --destructive: oklch(0.577 0.245 27);
+
+  /* Admin accent (Pastel) */
+  --hanami-pink:  #f9a8d4;
+  --hanami-rose:  #db2777;
+  --hanami-deep:  #6b2147;
+  --hanami-blush: #fde8f4;
+  --hanami-pale:  #fdf0f9;
+}
+
+@layer base {
+  * { @apply border-border; }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-roboto), Arial, sans-serif;
+  }
+}

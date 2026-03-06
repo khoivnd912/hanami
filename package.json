@@ -1,26 +1,21 @@
 {
-  "name": "hanami",
+  "name": "hanami-monorepo",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.30.3",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
-  },
-  "dependencies": {
-    "next": "16.1.6",
-    "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "dev": "turbo dev",
+    "dev:web": "turbo dev --filter=@hanami/web",
+    "dev:api": "turbo dev --filter=@hanami/api",
+    "dev:admin": "turbo dev --filter=@hanami/admin",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "clean": "turbo clean",
+    "seed": "tsx scripts/seed.ts"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.1.6",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "turbo": "^2.8.13",
+    "typescript": "^5.8.3"
   }
 }
