@@ -25,7 +25,6 @@ const ProductSchema = new Schema<ProductDocument>(
     descriptionVi: [{ type: String }],
     descriptionEn: [{ type: String }],
     specs:         [SpecSchema],
-    petals:        { type: Number, required: true, min: 1, default: 6 },
     stock:         { type: Number, required: true, min: 0, default: 0 },
     isActive:      { type: Boolean, default: true },
   },

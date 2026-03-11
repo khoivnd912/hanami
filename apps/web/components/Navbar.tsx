@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, startTransition } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, ShoppingCart } from "lucide-react";
@@ -22,7 +22,7 @@ export function Navbar() {
   }, []);
 
   // Close mobile menu on route change
-  useEffect(() => { setOpen(false); }, [pathname]);
+  useEffect(() => { startTransition(() => setOpen(false)); }, [pathname]);
 
   const isHome     = pathname === "/";
   const forceLight = !isHome;
@@ -41,13 +41,13 @@ export function Navbar() {
   };
 
   const navBg = forceLight || scrolled
-    ? "bg-white/95 backdrop-blur-md shadow-[0_1px_20px_rgba(236,72,153,0.08)] border-b border-pink-100"
+    ? "bg-white/95 backdrop-blur-md shadow-[0_1px_20px_rgba(244,182,194,0.08)] border-b border-pink-100"
     : "bg-transparent";
 
-  const linkColor = forceLight || scrolled ? "text-rose-900" : "text-white/85";
-  const logoColor = forceLight || scrolled ? "text-rose-800" : "text-white";
-  const subColor  = forceLight || scrolled ? "text-pink-400" : "text-pink-200/80";
-  const iconColor = forceLight || scrolled ? "text-rose-900" : "text-white";
+  const linkColor = forceLight || scrolled ? "text-[#333333]" : "text-white/90";
+  const logoColor = forceLight || scrolled ? "text-[#1a1a1a]" : "text-white";
+  const subColor  = forceLight || scrolled ? "text-[#e8859a]" : "text-pink-200/80";
+  const iconColor = forceLight || scrolled ? "text-[#333333]" : "text-white";
 
   // Language toggle colors
   const toggleBorder = forceLight || scrolled ? "border-pink-200" : "border-white/30";
@@ -64,13 +64,13 @@ export function Navbar() {
               <ellipse
                 key={deg}
                 cx="18" cy="10" rx="5" ry="9"
-                fill={forceLight || scrolled ? "#f9a8d4" : "rgba(249,168,212,0.8)"}
+                fill={forceLight || scrolled ? "#f4b6c2" : "rgba(244,182,194,0.8)"}
                 transform={`rotate(${deg} 18 18)`}
                 className="transition-all duration-500"
               />
             ))}
             <circle cx="18" cy="18" r="5"
-              fill={forceLight || scrolled ? "#f9a8d4" : "rgba(252,231,243,0.95)"}
+              fill={forceLight || scrolled ? "#f4b6c2" : "rgba(251,234,234,0.95)"}
               className="transition-all duration-500"
             />
           </svg>
@@ -92,11 +92,11 @@ export function Navbar() {
               <li key={href}>
                 <Link
                   href={href}
-                  className={`relative text-xs tracking-[0.22em] uppercase font-light transition-colors duration-300
-                    after:absolute after:-bottom-0.5 after:left-0 after:h-px after:bg-pink-400 after:transition-all after:duration-300
+                  className={`relative text-[11px] tracking-[0.2em] uppercase font-medium transition-colors duration-300
+                    after:absolute after:-bottom-0.5 after:left-0 after:h-px after:bg-[#e8859a] after:transition-all after:duration-300
                     ${active
-                      ? "text-pink-500 after:w-full"
-                      : `${linkColor} after:w-0 hover:text-pink-400 hover:after:w-full`
+                      ? "text-[#d96b82] after:w-full"
+                      : `${linkColor} after:w-0 hover:text-[#e8859a] hover:after:w-full`
                     }`}
                 >
                   {label}
@@ -126,7 +126,7 @@ export function Navbar() {
 
           {/* EN / VI language toggle */}
           <li>
-            <div className={`flex items-center rounded-full border overflow-hidden text-[10px] tracking-[0.18em] uppercase font-light ${toggleBorder}`}>
+            <div className={`flex items-center rounded-full border overflow-hidden text-[10px] tracking-[0.18em] uppercase font-medium ${toggleBorder}`}>
               <button
                 onClick={() => setLang("en")}
                 aria-pressed={lang === "en"}
@@ -157,10 +157,10 @@ export function Navbar() {
           <li>
             <Link
               href="/#contact"
-              className={`px-5 py-2.5 text-[10px] tracking-[0.25em] uppercase font-light rounded-full border transition-all duration-300 ${
+              className={`px-5 py-2.5 text-[10px] tracking-[0.25em] uppercase font-semibold rounded-full border transition-all duration-300 ${
                 forceLight || scrolled
-                  ? "border-pink-400 text-pink-600 hover:bg-pink-500 hover:text-white hover:border-pink-500"
-                  : "border-white/50 text-white/90 hover:bg-white hover:text-rose-900 hover:border-white"
+                  ? "border-[#f4b6c2] text-[#d96b82] hover:bg-[#f4b6c2] hover:text-[#333] hover:border-[#f4b6c2]"
+                  : "border-white/50 text-white/90 hover:bg-white hover:text-[#333] hover:border-white"
               }`}
             >
               {t("nav.orderNow")}
@@ -209,8 +209,8 @@ export function Navbar() {
               <Link
                 key={href}
                 href={href}
-                className={`text-left text-xs tracking-[0.3em] uppercase font-light transition-colors ${
-                  active ? "text-pink-500" : "text-rose-900 hover:text-pink-500"
+                className={`text-left text-[13px] tracking-[0.2em] uppercase font-medium transition-colors ${
+                  active ? "text-[#d96b82]" : "text-[#333333] hover:text-[#e8859a]"
                 }`}
               >
                 {label}
@@ -220,12 +220,12 @@ export function Navbar() {
 
           {/* Mobile EN/VI toggle */}
           <div className="flex items-center gap-3">
-            <span className="text-[9px] tracking-[0.3em] uppercase text-pink-400/60 font-light">Lang</span>
-            <div className="flex items-center rounded-full border border-pink-200 overflow-hidden text-[10px] tracking-[0.18em] uppercase font-light">
+            <span className="text-[10px] tracking-[0.3em] uppercase font-medium" style={{ color: "#aaa" }}>Lang</span>
+            <div className="flex items-center rounded-full border border-pink-200 overflow-hidden text-[10px] tracking-[0.18em] uppercase font-medium">
               <button
                 onClick={() => setLang("en")}
                 aria-pressed={lang === "en"}
-                className={`px-3 py-1.5 transition-colors duration-200 ${lang === "en" ? "bg-pink-500 text-white" : "text-rose-900 hover:text-pink-400"}`}
+                className={`px-3 py-1.5 transition-colors duration-200 ${lang === "en" ? "bg-[#e8859a] text-white" : "text-[#333] hover:text-[#e8859a]"}`}
               >
                 EN
               </button>
@@ -233,7 +233,7 @@ export function Navbar() {
               <button
                 onClick={() => setLang("vi")}
                 aria-pressed={lang === "vi"}
-                className={`px-3 py-1.5 transition-colors duration-200 ${lang === "vi" ? "bg-pink-500 text-white" : "text-rose-900 hover:text-pink-400"}`}
+                className={`px-3 py-1.5 transition-colors duration-200 ${lang === "vi" ? "bg-[#e8859a] text-white" : "text-[#333] hover:text-[#e8859a]"}`}
               >
                 VI
               </button>
@@ -242,7 +242,7 @@ export function Navbar() {
 
           <Link
             href="/#contact"
-            className="mt-2 px-6 py-3 text-xs tracking-[0.25em] uppercase font-light border border-pink-400 text-pink-600 rounded-full hover:bg-pink-500 hover:text-white hover:border-pink-500 transition-all text-center"
+            className="mt-2 px-6 py-3 text-xs tracking-[0.25em] uppercase font-semibold border border-[#f4b6c2] text-[#d96b82] rounded-full hover:bg-[#f4b6c2] hover:text-[#333] hover:border-[#f4b6c2] transition-all text-center"
           >
             {t("nav.orderNow")}
           </Link>

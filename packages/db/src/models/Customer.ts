@@ -4,17 +4,19 @@ import bcrypt from "bcryptjs";
 // ─── Document interface ───────────────────────────────────────────────────────
 
 export interface CustomerDocument extends Document {
-  email:          string;
-  phone:          string;
-  name:           string;
-  hashedPassword: string;
-  isVerified:     boolean;
-  isActive:       boolean;
-  verifyToken?:   string;
-  resetToken?:    string;
-  resetExpires?:  Date;
-  createdAt:      Date;
-  updatedAt:      Date;
+  email:                  string;
+  phone:                  string;
+  name:                   string;
+  hashedPassword:         string;
+  isVerified:             boolean;
+  isActive:               boolean;
+  verifyToken?:           string;
+  resetToken?:            string;
+  resetExpires?:          Date;
+  refreshTokenHash?:      string;
+  refreshTokenExpiresAt?: Date;
+  createdAt:              Date;
+  updatedAt:              Date;
 
   // Methods
   comparePassword(plain: string): Promise<boolean>;
@@ -34,9 +36,11 @@ const CustomerSchema = new Schema<CustomerDocument, CustomerModel>(
     hashedPassword: { type: String, required: true, select: false },
     isVerified:     { type: Boolean, default: false },
     isActive:       { type: Boolean, default: true },
-    verifyToken:    { type: String, select: false },
-    resetToken:     { type: String, select: false },
-    resetExpires:   { type: Date,   select: false },
+    verifyToken:           { type: String, select: false },
+    resetToken:            { type: String, select: false },
+    resetExpires:          { type: Date,   select: false },
+    refreshTokenHash:      { type: String, select: false },
+    refreshTokenExpiresAt: { type: Date,   select: false },
   },
   {
     timestamps: true,

@@ -45,13 +45,13 @@ export default function InventoryPage() {
   useEffect(() => { load(); }, [load]);
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-4 sm:p-6 space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{ background: "linear-gradient(135deg,#f9a8d4,#db2777)" }}>
-            <Boxes size={17} className="text-white" />
+            style={{ background: "#f4b6c2", color: "#333333" }}>
+            <Boxes size={17} className="text-[#555]" />
           </div>
           <div>
             <h1 className="text-lg font-semibold text-gray-900">Tồn kho</h1>
@@ -86,8 +86,9 @@ export default function InventoryPage() {
       {error && <p className="text-sm text-red-400">{error}</p>}
 
       {/* Log table */}
-      <div className="rounded-2xl overflow-hidden border" style={{ borderColor: "rgba(249,168,212,0.25)" }}>
-        <table className="w-full text-sm">
+      <div className="rounded-2xl overflow-hidden border" style={{ borderColor: "rgba(244,182,194,0.25)" }}>
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[500px]">
           <thead>
             <tr className="text-left text-xs text-gray-500 uppercase tracking-wider"
               style={{ background: "rgba(255,255,255,0.03)" }}>
@@ -137,6 +138,7 @@ export default function InventoryPage() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       <Pagination

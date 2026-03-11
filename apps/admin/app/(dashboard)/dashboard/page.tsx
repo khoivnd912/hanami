@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { api, type AdminStats } from "@/lib/api";
 import { formatVND, formatDate, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from "@/lib/utils";
 import { cn } from "@/lib/utils";
@@ -25,7 +25,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState("");
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true); setError("");
     try {
       setStats(await api.getStats(range));
@@ -34,9 +34,9 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [range]);
 
-  useEffect(() => { load(); }, [range]);
+  useEffect(() => { load(); }, [load]);
 
   return (
     <div className="p-6 space-y-6">
@@ -97,6 +97,7 @@ export default function DashboardPage() {
             <KpiCard
               label="Khách mới"
               value={String(stats.kpis.newCustomers)}
+              subtitle={`${stats.kpis.newConsultations ?? 0} tư vấn · ${stats.kpis.newOrderCustomers ?? 0} đơn hàng`}
               icon={<Users size={16} />}
               color="purple"
             />
@@ -123,8 +124,8 @@ export default function DashboardPage() {
                     labelFormatter={(l) => `Ngày ${l}`}
                   />
                   <Line
-                    type="monotone" dataKey="revenue" stroke="#f9a8d4" strokeWidth={2}
-                    dot={{ fill: "#f9a8d4", r: 3 }} activeDot={{ r: 5 }}
+                    type="monotone" dataKey="revenue" stroke="#f4b6c2" strokeWidth={2}
+                    dot={{ fill: "#f4b6c2", r: 3 }} activeDot={{ r: 5 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -189,7 +190,7 @@ export default function DashboardPage() {
                       <p className="text-[10px] text-gray-400">{order.shippingAddress.name}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-medium" style={{ color: "#db2777" }}>{formatVND(order.total)}</p>
+                      <p className="text-xs font-medium" style={{ color: "#d96b82" }}>{formatVND(order.total)}</p>
                       <span className={cn("text-[10px] px-1.5 py-0.5 rounded-full", ORDER_STATUS_COLORS[order.status])}>
                         {ORDER_STATUS_LABELS[order.status]}
                       </span>
@@ -215,8 +216,8 @@ const COLOR_MAP: Record<string, { bg: string; icon: string; border: string }> = 
   green:  { bg: "bg-emerald-50",icon: "text-emerald-500",border: "border-emerald-100" },
 };
 
-function KpiCard({ label, value, icon, color }: {
-  label: string; value: string; icon: React.ReactNode; color: string;
+function KpiCard({ label, value, subtitle, icon, color }: {
+  label: string; value: string; subtitle?: string; icon: React.ReactNode; color: string;
 }) {
   const c = COLOR_MAP[color] ?? COLOR_MAP.blue;
   return (
@@ -226,6 +227,7 @@ function KpiCard({ label, value, icon, color }: {
       </div>
       <p className="text-xs text-gray-500 mb-1">{label}</p>
       <p className="text-xl font-bold text-gray-900 leading-tight">{value}</p>
+      {subtitle && <p className="text-[10px] text-gray-400 mt-1 leading-tight">{subtitle}</p>}
     </div>
   );
 }

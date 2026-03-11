@@ -57,23 +57,23 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4"
-      style={{ background: "linear-gradient(135deg, #3d0b22 0%, #831843 50%, #db2777 100%)" }}
+      style={{ background: "linear-gradient(135deg, #380d1c 0%, #8a3050 50%, #d96b82 100%)" }}
     >
       {/* Card */}
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="px-8 pt-8 pb-6 text-center"
-          style={{ background: "linear-gradient(135deg, #fdf5f0 0%, #fce7f3 100%)" }}
+          style={{ background: "linear-gradient(135deg, #fef5f7 0%, #fae8ee 100%)" }}
         >
           <div className="flex justify-center mb-3">
             <div className="w-14 h-14 rounded-full flex items-center justify-center"
-              style={{ background: "linear-gradient(135deg, #f9a8d4, #db2777)" }}
+              style={{ background: "#f4b6c2", color: "#333333" }}
             >
-              <Flower2 size={26} className="text-white" />
+              <Flower2 size={26} className="text-[#555]" />
             </div>
           </div>
-          <h1 className="text-xl font-semibold" style={{ color: "#3d0b22" }}>Hanami Admin</h1>
-          <p className="text-xs mt-1" style={{ color: "#db2777" }}>
+          <h1 className="text-xl font-semibold" style={{ color: "#380d1c" }}>Hanami Admin</h1>
+          <p className="text-xs mt-1" style={{ color: "#d96b82" }}>
             {step === "credentials" ? "Đăng nhập vào trang quản trị" : "Xác thực hai yếu tố"}
           </p>
         </div>
@@ -100,7 +100,7 @@ export default function LoginPage() {
                     value={email} onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-9 pr-4 py-2.5 text-sm border rounded-xl outline-none focus:ring-2 transition-all"
                     style={{ borderColor: "#e2e8f0" }}
-                    onFocus={(e) => { e.target.style.borderColor = "#f9a8d4"; e.target.style.boxShadow = "0 0 0 3px rgba(249,168,212,0.20)"; }}
+                    onFocus={(e) => { e.target.style.borderColor = "#f4b6c2"; e.target.style.boxShadow = "0 0 0 3px rgba(244,182,194,0.20)"; }}
                     onBlur={(e)  => { e.target.style.borderColor = "#e2e8f0"; e.target.style.boxShadow = "none"; }}
                     placeholder="admin@hanami.vn"
                   />
@@ -119,7 +119,7 @@ export default function LoginPage() {
                     value={password} onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-9 pr-10 py-2.5 text-sm border rounded-xl outline-none transition-all"
                     style={{ borderColor: "#e2e8f0" }}
-                    onFocus={(e) => { e.target.style.borderColor = "#f9a8d4"; e.target.style.boxShadow = "0 0 0 3px rgba(249,168,212,0.20)"; }}
+                    onFocus={(e) => { e.target.style.borderColor = "#f4b6c2"; e.target.style.boxShadow = "0 0 0 3px rgba(244,182,194,0.20)"; }}
                     onBlur={(e)  => { e.target.style.borderColor = "#e2e8f0"; e.target.style.boxShadow = "none"; }}
                     placeholder="••••••••"
                   />
@@ -133,7 +133,7 @@ export default function LoginPage() {
 
               <button type="submit" disabled={loading}
                 className="w-full py-3 rounded-xl text-sm font-medium text-white transition-all hover:opacity-90 disabled:opacity-60 mt-2"
-                style={{ background: "linear-gradient(135deg, #f9a8d4, #db2777)" }}
+                style={{ background: "#f4b6c2", color: "#333333" }}
               >
                 {loading ? "Đang xử lý..." : "Đăng nhập"}
               </button>
@@ -141,7 +141,7 @@ export default function LoginPage() {
           ) : (
             <form onSubmit={handleTotp} className="space-y-4">
               <div className="text-center mb-2">
-                <ShieldCheck size={32} className="mx-auto mb-2" style={{ color: "#f9a8d4" }} />
+                <ShieldCheck size={32} className="mx-auto mb-2" style={{ color: "#f4b6c2" }} />
                 <p className="text-sm text-gray-600">
                   Nhập mã 6 chữ số từ ứng dụng xác thực của bạn
                 </p>
@@ -154,7 +154,7 @@ export default function LoginPage() {
                   value={totp} onChange={(e) => setTotp(e.target.value.replace(/\D/g, ""))}
                   className="w-full text-center text-2xl tracking-[0.5em] py-3 border rounded-xl outline-none font-mono transition-all"
                   style={{ borderColor: "#e2e8f0" }}
-                  onFocus={(e) => { e.target.style.borderColor = "#f9a8d4"; e.target.style.boxShadow = "0 0 0 3px rgba(249,168,212,0.20)"; }}
+                  onFocus={(e) => { e.target.style.borderColor = "#f4b6c2"; e.target.style.boxShadow = "0 0 0 3px rgba(244,182,194,0.20)"; }}
                   onBlur={(e)  => { e.target.style.borderColor = "#e2e8f0"; e.target.style.boxShadow = "none"; }}
                   placeholder="000000"
                 />
@@ -162,7 +162,7 @@ export default function LoginPage() {
 
               <button type="submit" disabled={loading || totp.length < 6}
                 className="w-full py-3 rounded-xl text-sm font-medium text-white transition-all hover:opacity-90 disabled:opacity-50"
-                style={{ background: "linear-gradient(135deg, #f9a8d4, #db2777)" }}
+                style={{ background: "#f4b6c2", color: "#333333" }}
               >
                 {loading ? "Đang xác thực..." : "Xác nhận"}
               </button>

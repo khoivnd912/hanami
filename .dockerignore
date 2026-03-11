@@ -1,0 +1,14 @@
+node_modules
+.pnpm-store
+**/node_modules
+**/.next
+**/dist
+**/build
+.git
+.gitignore
+*.md
+apps/web
+apps/admin
+docker-compose*.yml
+.env*
+scripts

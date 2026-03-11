@@ -133,27 +133,43 @@ export const api = {
   getConsultations: (params: Record<string, string> = {}) =>
     request<PaginatedConsultations>(`/admin/consultations?${new URLSearchParams(params).toString()}`),
 
+  createConsultation: (data: CreateConsultationData) =>
+    request<AdminConsultation>("/admin/consultations", { method: "POST", body: JSON.stringify(data) }),
+
   updateConsultationStatus: (id: string, status: string, staffNote?: string) =>
     request<AdminConsultation>(`/admin/consultations/${id}/status`, {
       method: "PATCH",
       body:   JSON.stringify({ status, ...(staffNote !== undefined ? { staffNote } : {}) }),
     }),
+
+  deleteConsultation: (id: string) =>
+    request<null>(`/admin/consultations/${id}`, { method: "DELETE" }),
+
+  // ── Manual orders ─────────────────────────────────────────────────────────
+  createManualOrder: (data: CreateManualOrderData) =>
+    request<AdminOrder>("/admin/orders/manual", { method: "POST", body: JSON.stringify(data) }),
+
+  deleteOrder: (id: string) =>
+    request<null>(`/admin/orders/${id}`, { method: "DELETE" }),
 };
 
 // ─── Response types ───────────────────────────────────────────────────────────
 
 export interface AdminStats {
   kpis: {
-    revenue:       number;
-    totalOrders:   number;
-    avgOrderValue: number;
-    newCustomers:  number;
-    pendingOrders: number;
+    revenue:           number;
+    totalOrders:       number;
+    avgOrderValue:     number;
+    newCustomers:      number;
+    newConsultations:  number;
+    newOrderCustomers: number;
+    pendingOrders:     number;
   };
-  revenueByDay:     RevenuePoint[];
-  ordersByStatus:   Record<string, number>;
-  lowStockProducts: { _id: string; nameVi: string; slug: string; stock: number }[];
-  recentOrders:     AdminOrder[];
+  revenueByDay:      RevenuePoint[];
+  consultationsByDay: { _id: string; count: number }[];
+  ordersByStatus:    Record<string, number>;
+  lowStockProducts:  { _id: string; nameVi: string; slug: string; stock: number }[];
+  recentOrders:      AdminOrder[];
 }
 
 export interface RevenuePoint {
@@ -166,7 +182,7 @@ export interface AdminOrder {
   _id:            string;
   orderNumber:    string;
   shippingAddress: { name: string; phone: string; full: string };
-  items:          { nameVi: string; qty: number; unitPrice: number; subtotal: number; gradient: string; petals: number }[];
+  items:          { nameVi: string; qty: number; unitPrice: number; subtotal: number; gradient: string }[];
   status:         string;
   paymentMethod:  string;
   paymentStatus:  string;
@@ -190,7 +206,6 @@ export interface AdminProduct {
   tag?:          string;
   gradient?:     string;
   imageUrl?:     string;
-  petals:        number;
   stock:         number;
   isActive:      boolean;
   createdAt:     string;
@@ -266,7 +281,9 @@ export interface PaginatedAudit {
 export interface AdminConsultation {
   _id:           string;
   name:          string;
-  email:         string;
+  email?:        string;
+  phone?:        string;
+  source?:       string;
   deliveryDate?: string;
   message:       string;
   status:        "new" | "contacted" | "done";
@@ -275,4 +292,28 @@ export interface AdminConsultation {
 }
 export interface PaginatedConsultations {
   items: AdminConsultation[]; total: number; page: number; limit: number; pages: number;
+}
+
+export interface CreateConsultationData {
+  name:          string;
+  email?:        string;
+  phone?:        string;
+  source?:       string;
+  message:       string;
+  deliveryDate?: string;
+  status?:       string;
+  staffNote?:    string;
+}
+
+export interface CreateManualOrderData {
+  customerName:   string;
+  phone:          string;
+  address?:       string;
+  source?:        string;
+  items:          { name: string; qty: number; unitPrice: number }[];
+  paymentMethod?: string;
+  paymentStatus?: string;
+  note?:          string;
+  staffNote?:     string;
+  createdAt?:     string;
 }

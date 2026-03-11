@@ -16,7 +16,7 @@ function normalizeTag(tag?: string): string | undefined {
 
 // ─── SVG flower overlay ──────────────────────────────────────────────────────
 
-function FlowerOverlay({ count }: { count: number }) {
+function FlowerOverlay() {
   const pts = [
     { x: 18, y: 20, s: 26, r: 15 }, { x: 72, y: 12, s: 18, r: -20 },
     { x: 50, y: 60, s: 30, r: 30 }, { x:  8, y: 60, s: 16, r: 45 },
@@ -24,7 +24,7 @@ function FlowerOverlay({ count }: { count: number }) {
     { x: 28, y: 38, s: 20, r: -35 }, { x: 62, y: 30, s: 24, r: 25 },
     { x: 88, y: 78, s: 12, r: 50 }, { x: 55, y: 18, s: 16, r: -15 },
     { x: 15, y: 74, s: 18, r: 40 }, { x: 75, y: 74, s: 14, r: 20 },
-  ].slice(0, count);
+  ];
 
   return (
     <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"
@@ -66,7 +66,7 @@ function ProductCard({ product, batchIndex, isNew }: ProductCardProps) {
             }
           : undefined
       }
-      className="group flex flex-col rounded-2xl overflow-hidden border border-pink-100 bg-white shadow-sm hover:shadow-[0_8px_40px_rgba(219,39,119,0.15)] hover:-translate-y-1 transition-all duration-300"
+      className="group flex flex-col rounded-2xl overflow-hidden border border-pink-100 bg-white shadow-sm hover:shadow-[0_8px_40px_rgba(244,182,194,0.15)] hover:-translate-y-1 transition-all duration-300"
     >
       {/* Image */}
       <div className="relative aspect-[3/4] overflow-hidden">
@@ -82,10 +82,10 @@ function ProductCard({ product, batchIndex, isNew }: ProductCardProps) {
           /* CSS gradient fallback */
           <div
             className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-105"
-            style={{ background: product.gradient ?? "linear-gradient(135deg,#fce4ec,#f9a8d4)" }}
+            style={{ background: product.gradient ?? "linear-gradient(135deg,#fae8ee,#f4b6c2)" }}
           />
         )}
-        {!product.imageUrl && <FlowerOverlay count={product.petals} />}
+        {!product.imageUrl && <FlowerOverlay />}
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(ellipse at 50% 65%, rgba(255,235,240,0.38) 0%, transparent 55%)" }} />
         {/* Hover overlay */}
@@ -112,8 +112,8 @@ function ProductCard({ product, batchIndex, isNew }: ProductCardProps) {
 
       {/* Info */}
       <div className="p-5 flex flex-col gap-1">
-        <p className="text-[10px] tracking-[0.12em] uppercase text-pink-500/70 font-normal">{secondaryName}</p>
-        <h2 className="font-display text-xl leading-tight" style={{ color: "var(--hanami-deep)" }}>
+        <p className="text-[10px] tracking-[0.12em] uppercase font-normal" style={{ color: "#aaa" }}>{secondaryName}</p>
+        <h2 className="font-display text-xl font-semibold leading-tight" style={{ color: "#1a1a1a" }}>
           {primaryName}
         </h2>
         <div className="flex items-baseline gap-2 mt-1">
@@ -138,7 +138,11 @@ function LoadMoreButton({
 }: {
   onClick: () => void; isLoading: boolean; shown: number; total: number;
 }) {
+  const { t } = useLang();
   const remaining = total - shown;
+  const n = Math.min(remaining, PAGE_SIZE);
+  const loadLabel = t("shopPage.loadNMore").replace("%n", String(n));
+  const leftLabel = t("shopPage.nLeft").replace("%n", String(remaining));
 
   return (
     <div className="flex flex-col items-center gap-4 mt-14">
@@ -154,7 +158,7 @@ function LoadMoreButton({
           className="h-full rounded-full transition-all duration-700 ease-out"
           style={{
             width: `${(shown / total) * 100}%`,
-            background: "linear-gradient(90deg, #f9a8d4, #db2777)",
+            background: "linear-gradient(90deg, #f4b6c2, #d96b82)",
           }}
         />
       </div>
@@ -162,24 +166,24 @@ function LoadMoreButton({
       <button
         onClick={onClick}
         disabled={isLoading}
-        className="relative mt-2 flex items-center gap-3 px-10 py-4 rounded-full text-sm font-semibold text-white tracking-[0.08em] uppercase transition-all duration-300 disabled:cursor-not-allowed hover:shadow-[0_8px_36px_rgba(219,39,119,0.48)] hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:ring-offset-2"
+        className="relative mt-2 flex items-center gap-3 px-10 py-4 rounded-full text-sm font-semibold text-white tracking-[0.08em] uppercase transition-all duration-300 disabled:cursor-not-allowed hover:shadow-[0_8px_36px_rgba(244,182,194,0.40)] hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:ring-offset-2"
         style={{
-          background: "linear-gradient(135deg, #f472b6 0%, #db2777 55%, #be185d 100%)",
-          boxShadow: "0 4px 20px rgba(219,39,119,0.35)",
+          background: "#f4b6c2", color: "#333333",
+          boxShadow: "0 4px 20px rgba(244,182,194,0.35)",
           opacity: isLoading ? 0.85 : 1,
         }}
-        aria-label={`Load ${Math.min(remaining, PAGE_SIZE)} more products`}
+        aria-label={loadLabel}
       >
         {isLoading ? (
           <>
             <Loader2 size={16} className="animate-spin" />
-            <span>Loading…</span>
+            <span>{t("shopPage.loadingMore")}</span>
           </>
         ) : (
           <>
-            <span>Load {Math.min(remaining, PAGE_SIZE)} more</span>
+            <span>{loadLabel}</span>
             <span className="text-white/60 font-normal normal-case tracking-normal text-[11px]">
-              ({remaining} left)
+              {leftLabel}
             </span>
           </>
         )}
@@ -233,11 +237,11 @@ export function ShopPageClient({ initialProducts, initialTotal }: Props) {
       {/* ── Hero header ── */}
       <div className="relative pt-36 pb-20 px-6 overflow-hidden" style={{ background: "var(--hanami-dark)" }}>
         <div className="absolute -top-10 left-0 w-[500px] h-[500px] rounded-full pointer-events-none"
-          style={{ background: "radial-gradient(circle, rgba(249,168,212,0.50) 0%, transparent 65%)" }} />
+          style={{ background: "radial-gradient(circle, rgba(244,182,194,0.50) 0%, transparent 65%)" }} />
         <div className="absolute bottom-0 right-0 w-[380px] h-[380px] rounded-full pointer-events-none"
-          style={{ background: "radial-gradient(circle, rgba(249,168,212,0.38) 0%, transparent 65%)" }} />
+          style={{ background: "radial-gradient(circle, rgba(244,182,194,0.38) 0%, transparent 65%)" }} />
         <div className="absolute top-0 inset-x-0 h-px"
-          style={{ background: "linear-gradient(to right, transparent, rgba(236,72,153,0.5), transparent)" }} />
+          style={{ background: "linear-gradient(to right, transparent, rgba(244,182,194,0.5), transparent)" }} />
 
         <div className="relative max-w-7xl mx-auto text-center">
           <nav className="flex items-center justify-center gap-2 text-[10px] tracking-[0.15em] uppercase font-normal text-white/60 mb-8">
@@ -248,12 +252,12 @@ export function ShopPageClient({ initialProducts, initialTotal }: Props) {
 
           <div className="flex items-center justify-center gap-4 mb-5">
             <div className="h-px w-12 bg-gradient-to-r from-transparent to-pink-500/50" />
-            <span className="text-[11px] tracking-[0.18em] uppercase text-pink-400/90 font-normal">{t("shopPage.collections")}</span>
+            <span className="text-[11px] tracking-[0.18em] uppercase font-medium" style={{ color: "rgba(244,182,194,0.9)" }}>{t("shopPage.collections")}</span>
             <div className="h-px w-12 bg-gradient-to-l from-transparent to-pink-500/50" />
           </div>
 
           <h1
-            className="font-display font-light text-white mb-4"
+            className="font-display font-semibold text-white mb-4"
             style={{ fontSize: "clamp(42px, 7vw, 80px)", lineHeight: 1.15 }}
           >
             {t("shopPage.heading")}{" "}
@@ -271,12 +275,12 @@ export function ShopPageClient({ initialProducts, initialTotal }: Props) {
 
           {/* Toolbar */}
           <div className="flex items-center justify-between mb-10">
-            <p className="text-[11px] tracking-[0.12em] uppercase font-normal text-pink-500/80">
+            <p className="text-[11px] tracking-[0.12em] uppercase font-medium" style={{ color: "#888" }}>
               {hasMore
-                ? `${t("shopPage.showing") || "Showing"} ${products.length} / ${total}`
+                ? `${t("shopPage.showing")} ${products.length} / ${total}`
                 : `${total} ${t("shopPage.productsCount")}`}
             </p>
-            <div className="flex items-center gap-2 text-[10px] font-normal text-pink-500/70">
+            <div className="flex items-center gap-2 text-[10px] font-medium" style={{ color: "#aaa" }}>
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                 <path d="M5 0L6.12 3.88H10L6.94 6.29L7.94 10.16L5 7.85L2.06 10.16L3.06 6.29L0 3.88H3.88L5 0Z" fill="currentColor" />
               </svg>
@@ -287,7 +291,7 @@ export function ShopPageClient({ initialProducts, initialTotal }: Props) {
           {/* No products fallback */}
           {products.length === 0 && (
             <div className="text-center py-20 text-gray-400">
-              <p className="text-sm">No products found. Make sure the API is running.</p>
+              <p className="text-sm">{t("shopPage.noProducts")}</p>
             </div>
           )}
 
@@ -321,7 +325,7 @@ export function ShopPageClient({ initialProducts, initialTotal }: Props) {
                 <div className="h-px w-16 bg-pink-200" />
               </div>
               <p className="text-xs font-normal text-gray-400 tracking-[0.1em]">
-                All {total} pieces displayed
+                {t("shopPage.allDisplayed").replace("%n", String(total))}
               </p>
             </div>
           ) : null}
@@ -332,14 +336,14 @@ export function ShopPageClient({ initialProducts, initialTotal }: Props) {
             style={{ background: "linear-gradient(135deg, rgba(252,231,243,0.6) 0%, rgba(253,245,240,0.8) 100%)" }}
           >
             <div>
-              <p className="font-display text-2xl font-light mb-1" style={{ color: "var(--hanami-deep)" }}>
+              <p className="font-display text-2xl font-semibold mb-1" style={{ color: "#1a1a1a" }}>
                 {t("shopPage.cantFind")}
               </p>
-              <p className="text-sm font-normal text-gray-500">{t("shopPage.customVision")}</p>
+              <p className="text-sm font-normal" style={{ color: "#666" }}>{t("shopPage.customVision")}</p>
             </div>
             <Link
               href="/#contact"
-              className="flex items-center gap-2.5 px-8 py-4 rounded-full text-xs tracking-[0.12em] uppercase font-semibold whitespace-nowrap border-2 border-rose-700 text-rose-800 hover:bg-rose-900 hover:text-white hover:border-rose-900 transition-all duration-300"
+              className="flex items-center gap-2.5 px-8 py-4 rounded-full text-xs tracking-[0.12em] uppercase font-semibold whitespace-nowrap border border-[#f4b6c2] text-[#d96b82] hover:bg-[#f4b6c2] hover:text-[#333] hover:border-[#f4b6c2] transition-all duration-300"
             >
               {t("shopPage.bookConsultation")}
             </Link>

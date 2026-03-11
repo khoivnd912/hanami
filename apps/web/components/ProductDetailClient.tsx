@@ -23,7 +23,7 @@ function normalizeTag(tag?: string): string | undefined {
 
 // ─── Shared SVG helpers ──────────────────────────────────────────────────────
 
-function FlowerOverlay({ count, opacity = 0.18 }: { count: number; opacity?: number }) {
+function FlowerOverlay({ opacity = 0.18 }: { opacity?: number }) {
   const pts = [
     { x: 18, y: 20, s: 26, r: 15 }, { x: 72, y: 12, s: 18, r: -20 },
     { x: 50, y: 60, s: 30, r: 30 }, { x:  8, y: 60, s: 16, r: 45 },
@@ -31,7 +31,7 @@ function FlowerOverlay({ count, opacity = 0.18 }: { count: number; opacity?: num
     { x: 28, y: 38, s: 20, r: -35 }, { x: 62, y: 30, s: 24, r: 25 },
     { x: 88, y: 78, s: 12, r: 50 }, { x: 55, y: 18, s: 16, r: -15 },
     { x: 15, y: 74, s: 18, r: 40 }, { x: 75, y: 74, s: 14, r: 20 },
-  ].slice(0, count);
+  ];
 
   return (
     <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"
@@ -59,7 +59,7 @@ function RelatedCard({ product }: { product: ApiProduct }) {
   return (
     <Link
       href={`/shop/${product.slug}`}
-      className="group flex flex-col rounded-2xl overflow-hidden border border-pink-100 bg-white hover:shadow-[0_8px_32px_rgba(219,39,119,0.15)] hover:-translate-y-1 transition-all duration-300"
+      className="group flex flex-col rounded-2xl overflow-hidden border border-pink-100 bg-white hover:shadow-[0_8px_32px_rgba(244,182,194,0.15)] hover:-translate-y-1 transition-all duration-300"
     >
       <div className="relative aspect-[3/4] overflow-hidden">
         {product.imageUrl ? (
@@ -71,9 +71,9 @@ function RelatedCard({ product }: { product: ApiProduct }) {
           />
         ) : (
           <div className="absolute inset-0 group-hover:scale-105 transition-transform duration-700"
-            style={{ background: product.gradient ?? "linear-gradient(135deg,#fce4ec,#f9a8d4)" }} />
+            style={{ background: product.gradient ?? "linear-gradient(135deg,#fae8ee,#f4b6c2)" }} />
         )}
-        {!product.imageUrl && <FlowerOverlay count={product.petals} />}
+        {!product.imageUrl && <FlowerOverlay />}
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(ellipse at 50% 65%, rgba(255,235,240,0.35) 0%, transparent 55%)" }} />
         {tag && (
@@ -85,8 +85,8 @@ function RelatedCard({ product }: { product: ApiProduct }) {
         )}
       </div>
       <div className="p-4">
-        <p className="text-[10px] tracking-[0.1em] uppercase text-gray-400 font-normal mb-1">{secondaryName}</p>
-        <p className="font-display text-lg leading-tight mb-2" style={{ color: "var(--hanami-deep)" }}>{primaryName}</p>
+        <p className="text-[10px] tracking-[0.1em] uppercase font-normal mb-1" style={{ color: "#aaa" }}>{secondaryName}</p>
+        <p className="font-display text-lg font-semibold leading-tight mb-2" style={{ color: "#1a1a1a" }}>{primaryName}</p>
         <p className="text-sm font-semibold" style={{ color: "var(--hanami-rose)" }}>{formatVND(product.price)}</p>
       </div>
     </Link>
@@ -118,7 +118,6 @@ export function ProductDetailClient({ product, related }: Props) {
     price:    product.price,
     gradient: product.gradient,
     imageUrl: product.imageUrl,
-    petals:   product.petals,
   };
 
   const handleAdd = () => {
@@ -194,9 +193,9 @@ export function ProductDetailClient({ product, related }: Props) {
                   />
                 ) : (
                   <div className="absolute inset-0"
-                    style={{ background: product.gradient ?? "linear-gradient(135deg,#fce4ec,#f9a8d4)" }} />
+                    style={{ background: product.gradient ?? "linear-gradient(135deg,#fae8ee,#f4b6c2)" }} />
                 )}
-                {!product.imageUrl && <FlowerOverlay count={product.petals} opacity={0.22} />}
+                {!product.imageUrl && <FlowerOverlay opacity={0.22} />}
                 {/* Ambient glow */}
                 <div className="absolute inset-0 pointer-events-none"
                   style={{ background: "radial-gradient(ellipse at 50% 60%, rgba(255,235,240,0.55) 0%, transparent 58%)" }} />
@@ -262,8 +261,8 @@ export function ProductDetailClient({ product, related }: Props) {
                 {secondaryName}
               </p>
               <h1
-                className="font-display font-light leading-[1.15] mb-6"
-                style={{ fontSize: "clamp(34px, 4.5vw, 56px)", color: "var(--hanami-deep)" }}
+                className="font-display font-semibold leading-[1.15] mb-6"
+                style={{ fontSize: "clamp(34px, 4.5vw, 56px)", color: "#1a1a1a" }}
               >
                 {primaryName}
               </h1>
@@ -296,7 +295,7 @@ export function ProductDetailClient({ product, related }: Props) {
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-1 h-4 rounded-full" style={{ background: "var(--hanami-rose)" }} />
                   <span className="text-[10px] tracking-[0.14em] uppercase text-gray-500 font-semibold">
-                    About this piece
+                    {t("productDetail.aboutThisPiece")}
                   </span>
                 </div>
                 <div className="space-y-3.5">
@@ -362,14 +361,11 @@ export function ProductDetailClient({ product, related }: Props) {
             <div className="flex flex-col gap-3 mb-7">
               <button
                 onClick={handleAdd}
-                className="relative w-full h-14 rounded-full text-sm tracking-[0.1em] uppercase font-semibold text-white flex items-center justify-center gap-3 transition-all duration-300 hover:shadow-[0_8px_36px_rgba(219,39,119,0.50)] hover:-translate-y-0.5 active:translate-y-0 active:shadow-none"
+                className="relative w-full h-14 rounded-full text-sm tracking-[0.1em] uppercase font-semibold flex items-center justify-center gap-3 transition-all duration-300 hover:shadow-[0_8px_36px_rgba(244,182,194,0.45)] hover:-translate-y-0.5 active:translate-y-0 active:shadow-none"
                 style={{
-                  background: added
-                    ? "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
-                    : "linear-gradient(135deg, #f472b6 0%, #db2777 55%, #be185d 100%)",
-                  boxShadow: added
-                    ? "0 4px 24px rgba(34,197,94,0.40)"
-                    : "0 4px 24px rgba(219,39,119,0.38)",
+                  background: added ? "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)" : "#f4b6c2",
+                  color:      added ? "#fff" : "#333333",
+                  boxShadow:  added ? "0 4px 24px rgba(34,197,94,0.40)" : "0 4px 24px rgba(244,182,194,0.38)",
                 }}
               >
                 {added ? (
@@ -381,7 +377,7 @@ export function ProductDetailClient({ product, related }: Props) {
 
               <Link
                 href="/#contact"
-                className="w-full h-14 rounded-full text-sm tracking-[0.1em] uppercase font-semibold flex items-center justify-center gap-3 border-2 transition-all duration-300 hover:bg-rose-900 hover:text-white hover:border-rose-900 group"
+                className="w-full h-14 rounded-full text-sm tracking-[0.1em] uppercase font-semibold flex items-center justify-center gap-3 border-2 transition-all duration-300 hover:bg-[#8a3050] hover:text-white hover:border-[#8a3050] group"
                 style={{ borderColor: "var(--hanami-rose)", color: "var(--hanami-rose)" }}
               >
                 <CalendarHeart size={15} className="group-hover:scale-110 transition-transform duration-300" />
@@ -398,7 +394,7 @@ export function ProductDetailClient({ product, related }: Props) {
               ].map((item) => (
                 <div key={item} className="flex items-center gap-1.5 text-xs font-normal text-gray-500">
                   <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0"
-                    style={{ background: "rgba(249,168,212,0.25)" }}>
+                    style={{ background: "rgba(244,182,194,0.25)" }}>
                     <Check size={9} className="text-pink-500" strokeWidth={2.5} />
                   </div>
                   {item}
@@ -416,11 +412,11 @@ export function ProductDetailClient({ product, related }: Props) {
               <div>
                 <div className="flex items-center gap-3 mb-2">
                   <div className="h-px w-8 bg-pink-300" />
-                  <span className="text-[11px] tracking-[0.15em] uppercase text-pink-500 font-medium">
+                  <span className="text-[11px] tracking-[0.15em] uppercase font-medium" style={{ color: "#d96b82" }}>
                     {t("productDetail.youMayAlsoLove")}
                   </span>
                 </div>
-                <h2 className="font-display text-3xl font-light" style={{ color: "var(--hanami-deep)" }}>
+                <h2 className="font-display text-3xl font-semibold" style={{ color: "#1a1a1a" }}>
                   {t("productDetail.related")}{" "}
                   <em className="italic" style={{ color: "var(--hanami-rose)" }}>
                     {t("productDetail.relatedEm")}
@@ -429,7 +425,8 @@ export function ProductDetailClient({ product, related }: Props) {
               </div>
               <Link
                 href="/shop"
-                className="hidden sm:flex items-center gap-2 text-xs tracking-[0.1em] uppercase font-semibold text-pink-600 hover:text-rose-700 transition-colors duration-200 border border-pink-200 px-5 py-2.5 rounded-full hover:bg-pink-50"
+                className="hidden sm:flex items-center gap-2 text-xs tracking-[0.1em] uppercase font-semibold transition-all duration-200 border border-[#f4b6c2] px-5 py-2.5 rounded-full hover:bg-[#f4b6c2] hover:text-[#333]"
+                style={{ color: "#d96b82" }}
               >
                 {t("productDetail.viewAll")}
                 <ChevronRight size={13} />

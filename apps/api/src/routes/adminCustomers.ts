@@ -1,24 +1,6 @@
-import type { FastifyPluginAsync, FastifyRequest, FastifyReply } from "fastify";
-import { CustomerModel } from "@hanami/db";
-import { verifyAdminToken } from "../lib/jwt";
-
-function requirePermission(permission: string) {
-  return async (req: FastifyRequest, reply: FastifyReply) => {
-    const auth = req.headers.authorization;
-    if (!auth?.startsWith("Bearer ")) {
-      return reply.status(401).send({ success: false, error: "Unauthorized" });
-    }
-    try {
-      const payload = verifyAdminToken(auth.slice(7));
-      if (!payload.permissions.includes(permission)) {
-        return reply.status(403).send({ success: false, error: "Không có quyền" });
-      }
-      (req as FastifyRequest & { staff: typeof payload }).staff = payload;
-    } catch {
-      return reply.status(401).send({ success: false, error: "Token không hợp lệ" });
-    }
-  };
-}
+import type { FastifyPluginAsync } from "fastify";
+import { CustomerModel, AuditLogModel } from "@hanami/db";
+import { requirePermission } from "../lib/middleware";
 
 const adminCustomersRoutes: FastifyPluginAsync = async (fastify) => {
 
@@ -71,16 +53,30 @@ const adminCustomersRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.patch<{ Params: { id: string } }>(
     "/:id/status", { preHandler: [requirePermission("customers:manage")] },
     async (req, reply) => {
+      const { staff } = req;
       const { isActive } = req.body as { isActive?: boolean };
       if (typeof isActive !== "boolean") {
         return reply.status(400).send({ success: false, error: "isActive phải là boolean" });
       }
+      const before   = await CustomerModel.findById(req.params.id).select("isActive email name").lean();
       const customer = await CustomerModel.findByIdAndUpdate(
         req.params.id,
         { isActive },
         { new: true }
       ).select("-hashedPassword").lean();
       if (!customer) return reply.status(404).send({ success: false, error: "Khách hàng không tồn tại" });
+
+      await AuditLogModel.create({
+        actorId:    staff.sub,
+        actorType:  "staff",
+        actorName:  staff.email,
+        action:     isActive ? "customer.unlock" : "customer.lock",
+        resource:   "Customer",
+        resourceId: req.params.id,
+        diff:       { before: { isActive: before?.isActive }, after: { isActive } },
+        ip:         req.ip,
+      });
+
       return reply.send({ success: true, data: customer });
     }
   );

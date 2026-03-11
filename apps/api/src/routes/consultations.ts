@@ -25,7 +25,7 @@ const consultationsRoutes: FastifyPluginAsync = async (fastify) => {
     // Send owner notification (non-blocking)
     sendConsultationNotification({
       name:         consultation.name,
-      email:        consultation.email,
+      email:        consultation.email ?? email.trim().toLowerCase(),
       deliveryDate: consultation.deliveryDate,
       message:      consultation.message,
     }).catch((err) => console.error("[Email] consultation notification failed:", err));

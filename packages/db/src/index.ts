@@ -8,6 +8,8 @@ export { InventoryLogModel } from "./models/InventoryLog";
 export { AuditLogModel }     from "./models/AuditLog";
 export { CouponModel }        from "./models/Coupon";
 export { ConsultationModel }  from "./models/Consultation";
+export { SiteContentModel }   from "./models/SiteContent";
+export { CounterModel }       from "./models/Counter";
 
 export type { ProductDocument }      from "./models/Product";
 export type { CustomerDocument }     from "./models/Customer";
@@ -17,3 +19,4 @@ export type { InventoryLogDocument, InventoryReason } from "./models/InventoryLo
 export type { AuditLogDocument, ActorType }           from "./models/AuditLog";
 export type { CouponDocument, CouponType }            from "./models/Coupon";
 export type { ConsultationDocument, ConsultationStatus } from "./models/Consultation";
+export type { SiteContentDocument, AboutLang, FooterContent, ContactInfo, GalleryItem, FeatureItem, TestimonialItem } from "./models/SiteContent";

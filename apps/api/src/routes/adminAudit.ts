@@ -1,24 +1,6 @@
-import type { FastifyPluginAsync, FastifyRequest, FastifyReply } from "fastify";
+import type { FastifyPluginAsync } from "fastify";
 import { AuditLogModel } from "@hanami/db";
-import { verifyAdminToken } from "../lib/jwt";
-
-function requirePermission(permission: string) {
-  return async (req: FastifyRequest, reply: FastifyReply) => {
-    const auth = req.headers.authorization;
-    if (!auth?.startsWith("Bearer ")) {
-      return reply.status(401).send({ success: false, error: "Unauthorized" });
-    }
-    try {
-      const payload = verifyAdminToken(auth.slice(7));
-      if (!payload.permissions.includes(permission)) {
-        return reply.status(403).send({ success: false, error: "Không có quyền" });
-      }
-      (req as FastifyRequest & { staff: typeof payload }).staff = payload;
-    } catch {
-      return reply.status(401).send({ success: false, error: "Token không hợp lệ" });
-    }
-  };
-}
+import { requirePermission } from "../lib/middleware";
 
 const adminAuditRoutes: FastifyPluginAsync = async (fastify) => {
 

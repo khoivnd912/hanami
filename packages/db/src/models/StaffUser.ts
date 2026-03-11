@@ -5,19 +5,23 @@ import type { StaffRole, Permission } from "@hanami/types";
 // ─── Document interface ───────────────────────────────────────────────────────
 
 export interface StaffDocument extends Document {
-  email:          string;
-  name:           string;
-  hashedPassword: string;
-  role:           StaffRole;
-  permissions:    Permission[];
-  totpSecret?:    string;
-  totpEnabled:    boolean;
-  isActive:       boolean;
-  lastLoginAt?:   Date;
-  inviteToken?:   string;
-  inviteExpires?: Date;
-  createdAt:      Date;
-  updatedAt:      Date;
+  email:                  string;
+  name:                   string;
+  hashedPassword:         string;
+  role:                   StaffRole;
+  permissions:            Permission[];
+  totpSecret?:            string;
+  totpEnabled:            boolean;
+  isActive:               boolean;
+  lastLoginAt?:           Date;
+  inviteToken?:           string;
+  inviteExpires?:         Date;
+  tempToken2faHash?:      string;
+  tempToken2faExpiresAt?: Date;
+  pendingTotpSecret?:     string;
+  pendingTotpExpiresAt?:  Date;
+  createdAt:              Date;
+  updatedAt:              Date;
 
   comparePassword(plain: string): Promise<boolean>;
 }
@@ -37,8 +41,12 @@ const StaffSchema = new Schema<StaffDocument, StaffModel>(
     totpEnabled:    { type: Boolean, default: false },
     isActive:       { type: Boolean, default: true },
     lastLoginAt:    { type: Date },
-    inviteToken:    { type: String, select: false },
-    inviteExpires:  { type: Date,   select: false },
+    inviteToken:           { type: String, select: false },
+    inviteExpires:         { type: Date,   select: false },
+    tempToken2faHash:      { type: String, select: false },
+    tempToken2faExpiresAt: { type: Date,   select: false },
+    pendingTotpSecret:     { type: String, select: false },
+    pendingTotpExpiresAt:  { type: Date,   select: false },
   },
   {
     timestamps: true,

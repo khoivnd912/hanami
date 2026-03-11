@@ -10,7 +10,6 @@ export interface ApiProduct {
   tag?:           string;
   gradient?:      string;
   imageUrl?:      string;
-  petals:         number;
 }
 
 export interface ApiSpec { label: string; value: string }
@@ -32,7 +31,6 @@ export interface CartProduct {
   price:     number;
   gradient?: string;
   imageUrl?: string;
-  petals:    number;
 }
 
 // ─── Shared product catalogue ──────────────────────────────────────────────
@@ -51,7 +49,6 @@ export interface Product {
   descriptionEn:  string[];
   descriptionVi:  string[];
   specs:          Spec[];
-  petals:         number;
 }
 
 export const PRODUCTS: Product[] = [
@@ -61,7 +58,7 @@ export const PRODUCTS: Product[] = [
     nameEn: "Night Rose Lamp",
     price: 890_000,
     tag: "Bestseller",
-    gradient: "radial-gradient(ellipse at 50% 35%, #fff0f5 0%, #fce4ec 18%, #f9a8d4 38%, #ec4899 62%, #be185d 82%, #4a0d28 100%)",
+    gradient: "radial-gradient(ellipse at 50% 35%, #fff5f7 0%, #fae8ee 18%, #f19cad 38%, #d96b82 62%, #8a3050 82%, #380d1c 100%)",
     descriptionEn: [
       "The Night Rose is our most beloved creation — a single preserved garden rose encased in hand-blown glass, its petals catching warm golden light to cast rose-tinted shadows across any room.",
       "Each lamp is unique. No two roses bloom the same way, and no two lamps tell the same story. Yours arrives in a signature Hanami box with a handwritten note.",
@@ -79,7 +76,6 @@ export const PRODUCTS: Product[] = [
       { label: "Light",       value: "Warm white LED, USB-C rechargeable, 10h life" },
       { label: "Colour temp", value: "2700K" },
     ],
-    petals: 8,
   },
   {
     id: "cherry-eternal",
@@ -88,7 +84,7 @@ export const PRODUCTS: Product[] = [
     price: 1_200_000,
     originalPrice: 1_400_000,
     tag: "Seasonal",
-    gradient: "radial-gradient(circle at 40% 28%, #fff9c4 0%, #fce4ec 22%, #f48fb1 48%, #c2185b 73%, #4a0d28 100%)",
+    gradient: "radial-gradient(circle at 40% 28%, #fffde7 0%, #fae8ee 22%, #f19cad 48%, #c05070 73%, #380d1c 100%)",
     descriptionEn: [
       "Inspired by fleeting cherry blossoms at peak bloom, Eternal Cherry captures twelve individually preserved sakura blossoms in a wide-mouth lantern that glows like a full moon.",
       "Petals are arranged by hand over three sessions, ensuring perfect layering before the glass is sealed. No two arrangements are identical.",
@@ -106,7 +102,6 @@ export const PRODUCTS: Product[] = [
       { label: "Light",       value: "Warm amber LED, battery AA×3, 12h life" },
       { label: "Colour temp", value: "2400K" },
     ],
-    petals: 12,
   },
   {
     id: "sunset-peony",
@@ -114,7 +109,7 @@ export const PRODUCTS: Product[] = [
     nameEn: "Sunset Peony",
     price: 1_450_000,
     tag: "New",
-    gradient: "radial-gradient(ellipse at 55% 42%, #ffe0b2 0%, #fce4ec 22%, #f48fb1 46%, #e91e8c 66%, #880e4f 85%, #3d0b22 100%)",
+    gradient: "radial-gradient(ellipse at 55% 42%, #fff3e0 0%, #fae8ee 22%, #f19cad 46%, #d96b82 66%, #8a3050 85%, #380d1c 100%)",
     descriptionEn: [
       "Three full-bloom peonies preserved at peak beauty. The Sunset Peony radiates warmth — a gradient of amber, blush, and deep rose that mirrors golden-hour light perfectly.",
       "Its generous form makes it a natural statement piece for bridal tables, mantelpieces, or entrance halls.",
@@ -132,14 +127,13 @@ export const PRODUCTS: Product[] = [
       { label: "Light",       value: "Dual-tone LED (warm/cool), USB-C, 8h life" },
       { label: "Colour temp", value: "2700–4000K adjustable" },
     ],
-    petals: 10,
   },
   {
     id: "moonlit-magnolia",
     nameVi: "Mộc Lan Trăng Sáng",
     nameEn: "Moonlit Magnolia",
     price: 980_000,
-    gradient: "linear-gradient(155deg, #fffde7 0%, #fce4ec 32%, #f9a8d4 60%, #ec4899 80%, #be185d 100%)",
+    gradient: "linear-gradient(155deg, #fffde7 0%, #fae8ee 32%, #f4b6c2 60%, #e8859a 80%, #c05070 100%)",
     descriptionEn: [
       "Three magnolia blooms hover within frosted glass, their ivory petals edged in the softest blush. When lit, the Moonlit Magnolia casts a diffused, dreamlike glow — like moonlight through curtain lace.",
       "The frosted glass finish is our most subtle option, perfect for minimalist or Japandi-styled interiors.",
@@ -157,7 +151,6 @@ export const PRODUCTS: Product[] = [
       { label: "Light",       value: "Neutral white LED, USB-C rechargeable, 9h life" },
       { label: "Colour temp", value: "3000K" },
     ],
-    petals: 6,
   },
   {
     id: "night-dahlia",
@@ -165,7 +158,7 @@ export const PRODUCTS: Product[] = [
     nameEn: "Night Dahlia",
     price: 1_350_000,
     tag: "Exclusive",
-    gradient: "radial-gradient(circle at 50% 48%, #fdf0f5 0%, #f9a8d4 28%, #e91e8c 52%, #880e4f 72%, #160712 100%)",
+    gradient: "radial-gradient(circle at 50% 48%, #fef5f7 0%, #f4b6c2 28%, #d96b82 52%, #8a3050 72%, #380d1c 100%)",
     descriptionEn: [
       "The Night Dahlia is our most dramatic lamp — a single prize dahlia bloom suspended in deep smoked glass. By day it appears as shadowed petals; by night it blazes like a pink star.",
       "Made in a limited run of 30 per month. Each is numbered and signed by its artisan.",
@@ -183,7 +176,6 @@ export const PRODUCTS: Product[] = [
       { label: "Light",       value: "Deep warm LED, wireless charging, 7h life" },
       { label: "Colour temp", value: "2200K" },
     ],
-    petals: 9,
   },
   {
     id: "pink-lotus",
@@ -191,7 +183,7 @@ export const PRODUCTS: Product[] = [
     nameEn: "Pink Lotus",
     price: 1_650_000,
     tag: "Limited",
-    gradient: "radial-gradient(ellipse at 50% 58%, #fce4ec 0%, #f9a8d4 25%, #e91e8c 50%, #880e4f 75%, #2d0a1f 100%)",
+    gradient: "radial-gradient(ellipse at 50% 58%, #f9d5e2 0%, #f19cad 25%, #d96b82 50%, #8a3050 75%, #380d1c 100%)",
     descriptionEn: [
       "The Pink Lotus floats in a wide shallow vessel filled with crystal resin that mimics still water. The lotus — symbol of purity and love — rises from light beneath, turning your table into a reflective garden pond.",
       "Requiring over 14 hours of work to complete, the resin base is custom-poured around your chosen lotus.",
@@ -209,14 +201,13 @@ export const PRODUCTS: Product[] = [
       { label: "Light",       value: "Upward-facing warm LED strip, USB-C, 6h life" },
       { label: "Colour temp", value: "2500K" },
     ],
-    petals: 11,
   },
   {
     id: "lavender-glow",
     nameVi: "Hoa Oải Hương",
     nameEn: "Lavender Glow",
     price: 1_100_000,
-    gradient: "radial-gradient(ellipse at 42% 25%, #fdf2f8 0%, #fce4ec 22%, #f9a8d4 45%, #d946ef 65%, #9333ea 83%, #4a0d28 100%)",
+    gradient: "radial-gradient(ellipse at 42% 25%, #fef5f7 0%, #f9d5e2 22%, #f19cad 45%, #e8859a 65%, #c05070 83%, #5c1a30 100%)",
     descriptionEn: [
       "The Lavender Glow weaves preserved lavender stems and blush roses in a tall column lamp. The scent lingers faintly — a living memory of a French garden wedding.",
       "A combination of mauve, rose, and deep amber creates an unusually warm purple-pink light that flatters every skin tone.",
@@ -234,7 +225,6 @@ export const PRODUCTS: Product[] = [
       { label: "Light",       value: "Warm white LED strip, USB-C rechargeable, 10h life" },
       { label: "Colour temp", value: "2700K" },
     ],
-    petals: 7,
   },
   {
     id: "wedding-duo",
@@ -242,7 +232,7 @@ export const PRODUCTS: Product[] = [
     nameEn: "Wedding Duo Set",
     price: 2_200_000,
     tag: "Bestseller",
-    gradient: "linear-gradient(135deg, #fff5f8 0%, #fce4ec 18%, #f9a8d4 33%, #ec4899 50%, #c2185b 65%, #831843 80%, #3d0b22 100%)",
+    gradient: "linear-gradient(135deg, #fef5f7 0%, #fae8ee 18%, #f4b6c2 33%, #e8859a 50%, #c05070 65%, #8a3050 80%, #380d1c 100%)",
     descriptionEn: [
       "Two matching lamps, hand-paired from a single flower harvest so their colors and forms mirror each other perfectly. The Wedding Duo is designed to flank your ceremony arch or sweetheart table.",
       "Each pair is accompanied by a hand-calligraphed pairing certificate noting the flower variety, harvest date, and the artisan who made them.",
@@ -260,7 +250,6 @@ export const PRODUCTS: Product[] = [
       { label: "Light",       value: "Synchronised warm LED, USB-C per lamp, 10h life" },
       { label: "Colour temp", value: "2700K" },
     ],
-    petals: 8,
   },
 ];
 

@@ -1,25 +1,7 @@
-import type { FastifyPluginAsync, FastifyRequest, FastifyReply } from "fastify";
-import { CouponModel } from "@hanami/db";
-import { verifyAdminToken } from "../lib/jwt";
+import type { FastifyPluginAsync } from "fastify";
+import { CouponModel, AuditLogModel } from "@hanami/db";
+import { requirePermission } from "../lib/middleware";
 import { z } from "zod";
-
-function requirePermission(permission: string) {
-  return async (req: FastifyRequest, reply: FastifyReply) => {
-    const auth = req.headers.authorization;
-    if (!auth?.startsWith("Bearer ")) {
-      return reply.status(401).send({ success: false, error: "Unauthorized" });
-    }
-    try {
-      const payload = verifyAdminToken(auth.slice(7));
-      if (!payload.permissions.includes(permission)) {
-        return reply.status(403).send({ success: false, error: "Không có quyền" });
-      }
-      (req as FastifyRequest & { staff: typeof payload }).staff = payload;
-    } catch {
-      return reply.status(401).send({ success: false, error: "Token không hợp lệ" });
-    }
-  };
-}
 
 const CouponSchema = z.object({
   code:        z.string().min(3).max(20).toUpperCase(),
@@ -56,6 +38,7 @@ const adminCouponsRoutes: FastifyPluginAsync = async (fastify) => {
 
   // ── POST /admin/coupons ──────────────────────────────────────────────────────
   fastify.post("/", { preHandler: [requirePermission("coupons:manage")] }, async (req, reply) => {
+    const { staff } = req;
     const body = CouponSchema.safeParse(req.body);
     if (!body.success) {
       return reply.status(400).send({ success: false, error: "Dữ liệu không hợp lệ" });
@@ -68,6 +51,13 @@ const adminCouponsRoutes: FastifyPluginAsync = async (fastify) => {
       ...body.data,
       expiresAt: body.data.expiresAt ? new Date(body.data.expiresAt) : undefined,
     });
+
+    await AuditLogModel.create({
+      actorId: staff.sub, actorType: "staff", actorName: staff.email,
+      action: "coupon.create", resource: "Coupon", resourceId: coupon.id,
+      diff: body.data, ip: req.ip,
+    });
+
     return reply.status(201).send({ success: true, data: coupon.toJSON() });
   });
 
@@ -75,12 +65,21 @@ const adminCouponsRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.put<{ Params: { id: string } }>(
     "/:id", { preHandler: [requirePermission("coupons:manage")] },
     async (req, reply) => {
+      const { staff } = req;
       const body = CouponSchema.partial().safeParse(req.body);
       if (!body.success) {
         return reply.status(400).send({ success: false, error: "Dữ liệu không hợp lệ" });
       }
+      const before = await CouponModel.findById(req.params.id).lean();
       const coupon = await CouponModel.findByIdAndUpdate(req.params.id, body.data, { new: true });
       if (!coupon) return reply.status(404).send({ success: false, error: "Mã giảm giá không tồn tại" });
+
+      await AuditLogModel.create({
+        actorId: staff.sub, actorType: "staff", actorName: staff.email,
+        action: "coupon.update", resource: "Coupon", resourceId: req.params.id,
+        diff: { before, after: body.data }, ip: req.ip,
+      });
+
       return reply.send({ success: true, data: coupon.toJSON() });
     }
   );
@@ -89,8 +88,17 @@ const adminCouponsRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.delete<{ Params: { id: string } }>(
     "/:id", { preHandler: [requirePermission("coupons:manage")] },
     async (req, reply) => {
+      const { staff } = req;
       const coupon = await CouponModel.findByIdAndDelete(req.params.id);
       if (!coupon) return reply.status(404).send({ success: false, error: "Mã giảm giá không tồn tại" });
+
+      await AuditLogModel.create({
+        actorId: staff.sub, actorType: "staff", actorName: staff.email,
+        action: "coupon.delete", resource: "Coupon", resourceId: req.params.id,
+        diff: { code: coupon.code, type: coupon.type, value: coupon.value },
+        ip: req.ip,
+      });
+
       return reply.send({ success: true, data: null });
     }
   );

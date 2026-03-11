@@ -85,10 +85,10 @@ export function Pagination({
       className={[
         "inline-flex items-center justify-center h-8 min-w-[32px] px-1.5 rounded-md text-xs font-medium border transition-all duration-150 select-none",
         active
-          ? "border-[#db2777] bg-[#db2777] text-white shadow-sm"
+          ? "border-[#d96b82] bg-[#d96b82] text-white shadow-sm"
           : disabled || dis
           ? "border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed"
-          : "border-gray-200 bg-white text-gray-600 hover:border-[#f9a8d4] hover:text-[#db2777] hover:bg-pink-50",
+          : "border-gray-200 bg-white text-gray-600 hover:border-[#f4b6c2] hover:text-[#d96b82] hover:bg-pink-50",
       ].join(" ")}
     >
       {label}
@@ -112,7 +112,7 @@ export function Pagination({
               value={limit}
               onChange={(e) => { onLimitChange(Number(e.target.value)); }}
               disabled={dis}
-              className="h-7 px-2 text-xs rounded-md border border-gray-200 bg-white text-gray-700 focus:outline-none focus:border-[#f9a8d4] focus:ring-1 focus:ring-[#f9a8d4] disabled:opacity-50 cursor-pointer"
+              className="h-7 px-2 text-xs rounded-md border border-gray-200 bg-white text-gray-700 focus:outline-none focus:border-[#f4b6c2] focus:ring-1 focus:ring-[#f4b6c2] disabled:opacity-50 cursor-pointer"
             >
               {limitOptions.map((n) => (
                 <option key={n} value={n}>{n}</option>

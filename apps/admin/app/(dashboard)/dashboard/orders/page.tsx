@@ -2,8 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { api, type AdminOrder, type PaginatedOrders } from "@/lib/api";
-import { formatVND, formatDate, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from "@/lib/utils";
-import { cn } from "@/lib/utils";
+import { formatVND, formatDate, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS, cn } from "@/lib/utils";
 import {
   Search, X,
   Package, MapPin, Phone, FileText,
@@ -79,7 +78,7 @@ export default function OrdersPage() {
   return (
     <div className="flex h-screen overflow-hidden">
       {/* ── Orders list ──────────────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Toolbar */}
         <div className="px-6 py-4 border-b border-gray-100 bg-white space-y-3">
           <div className="flex items-center justify-between">
@@ -87,9 +86,9 @@ export default function OrdersPage() {
             {data && <p className="text-sm text-gray-500">Tổng: {data.total} đơn</p>}
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             {/* Search */}
-            <div className="relative flex-1 max-w-xs">
+            <div className="relative flex-1 min-w-0 max-w-xs">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text" value={search}
@@ -119,12 +118,17 @@ export default function OrdersPage() {
               <div className="w-6 h-6 border-2 border-pink-400 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : (
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[560px]">
               <thead className="bg-gray-50 border-b border-gray-100 sticky top-0">
                 <tr>
-                  {["Mã đơn", "Khách hàng", "Sản phẩm", "Tổng", "Thanh toán", "Trạng thái", "Ngày"].map((h) => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
-                  ))}
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">Mã đơn</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">Khách hàng</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap hidden sm:table-cell">Sản phẩm</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">Tổng</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap hidden md:table-cell">Thanh toán</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">Trạng thái</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap hidden md:table-cell">Ngày</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -144,13 +148,13 @@ export default function OrdersPage() {
                       <p className="font-medium text-gray-800">{order.shippingAddress.name}</p>
                       <p className="text-xs text-gray-400">{order.shippingAddress.phone}</p>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 hidden sm:table-cell">
                       <p className="text-gray-600 text-xs">{order.items.length} sản phẩm</p>
                     </td>
                     <td className="px-4 py-3 font-semibold text-gray-900 whitespace-nowrap">
                       {formatVND(order.total)}
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-500 uppercase">
+                    <td className="px-4 py-3 text-xs text-gray-500 uppercase hidden md:table-cell">
                       {order.paymentMethod}
                     </td>
                     <td className="px-4 py-3">
@@ -158,13 +162,14 @@ export default function OrdersPage() {
                         {ORDER_STATUS_LABELS[order.status]}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">
+                    <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap hidden md:table-cell">
                       {formatDate(order.createdAt)}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
 
@@ -184,7 +189,9 @@ export default function OrdersPage() {
 
       {/* ── Order detail drawer ──────────────────────────────────────────── */}
       {selected && (
-        <div className="w-96 border-l border-gray-100 bg-white flex flex-col overflow-hidden shadow-xl">
+        <>
+          <div className="fixed inset-0 bg-black/30 z-30 lg:hidden" onClick={() => setSelected(null)} />
+          <div className="fixed right-0 inset-y-0 w-full max-w-sm z-40 lg:static lg:w-96 lg:max-w-none border-l border-gray-100 bg-white flex flex-col overflow-hidden shadow-xl">
           {/* Drawer header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
             <div>
@@ -230,7 +237,7 @@ export default function OrdersPage() {
                       <p className="text-sm font-medium text-gray-800">{item.nameVi}</p>
                       <p className="text-xs text-gray-400">x{item.qty} · {formatVND(item.unitPrice)}/cái</p>
                     </div>
-                    <p className="text-sm font-semibold" style={{ color: "#db2777" }}>{formatVND(item.subtotal)}</p>
+                    <p className="text-sm font-semibold" style={{ color: "#d96b82" }}>{formatVND(item.subtotal)}</p>
                   </div>
                 ))}
               </div>
@@ -239,7 +246,7 @@ export default function OrdersPage() {
                 <div className="flex justify-between"><span>Phí ship</span><span>{selected.shippingFee === 0 ? "Miễn phí" : formatVND(selected.shippingFee)}</span></div>
                 {selected.discount > 0 && <div className="flex justify-between text-emerald-600"><span>Giảm giá</span><span>– {formatVND(selected.discount)}</span></div>}
                 <div className="flex justify-between font-bold text-sm text-gray-900 pt-1 border-t border-gray-100">
-                  <span>Tổng thanh toán</span><span style={{ color: "#db2777" }}>{formatVND(selected.total)}</span>
+                  <span>Tổng thanh toán</span><span style={{ color: "#d96b82" }}>{formatVND(selected.total)}</span>
                 </div>
               </div>
             </div>
@@ -284,7 +291,7 @@ export default function OrdersPage() {
                   <button
                     onClick={handleTracking} disabled={!trackingInput.trim() || actionLoading}
                     className="px-3 py-2 rounded-xl text-xs font-medium text-white disabled:opacity-50"
-                    style={{ background: "#f9a8d4" }}
+                    style={{ background: "#f4b6c2" }}
                   >
                     Lưu
                   </button>
@@ -313,7 +320,8 @@ export default function OrdersPage() {
               </div>
             </div>
           </div>
-        </div>
+          </div>
+        </>
       )}
     </div>
   );

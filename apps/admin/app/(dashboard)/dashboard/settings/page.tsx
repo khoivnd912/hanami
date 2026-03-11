@@ -37,25 +37,25 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-4 sm:p-6 space-y-5">
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-          style={{ background: "linear-gradient(135deg,#f9a8d4,#db2777)" }}>
-          <Settings size={17} className="text-white" />
+          style={{ background: "#f4b6c2", color: "#333333" }}>
+          <Settings size={17} className="text-[#555]" />
         </div>
         <h1 className="text-lg font-semibold text-gray-900">Cài đặt</h1>
       </div>
 
-      <div className="flex gap-5">
-        {/* Sidebar tabs */}
-        <div className="w-44 flex-shrink-0 space-y-1">
+      <div className="flex flex-col sm:flex-row gap-4 sm:gap-5">
+        {/* Sidebar tabs — horizontal scroll on mobile, vertical on sm+ */}
+        <div className="flex sm:flex-col sm:w-44 sm:flex-shrink-0 gap-1 overflow-x-auto sm:overflow-visible pb-1 sm:pb-0">
           {TABS.map(({ id, label, icon: Icon }) => (
             <button key={id} onClick={() => setTab(id)}
-              className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm transition-colors text-left ${
+              className={`flex-shrink-0 sm:flex-shrink sm:w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm transition-colors text-left whitespace-nowrap ${
                 tab === id ? "text-white font-medium" : "text-gray-400 hover:text-gray-200 hover:bg-white/5"
               }`}
-              style={tab === id ? { background: "rgba(249,168,212,0.28)" } : {}}>
+              style={tab === id ? { background: "rgba(244,182,194,0.28)" } : {}}>
               <Icon size={15} className={tab === id ? "text-pink-400" : "text-gray-500"} />
               {label}
             </button>
@@ -64,16 +64,16 @@ export default function SettingsPage() {
 
         {/* Content */}
         <div className="flex-1 rounded-2xl border p-5"
-          style={{ background: "rgba(255,255,255,0.02)", borderColor: "rgba(249,168,212,0.20)" }}>
+          style={{ background: "rgba(255,255,255,0.02)", borderColor: "rgba(244,182,194,0.20)" }}>
 
           {tab === "profile" && (
-            <div className="space-y-4 max-w-sm">
+            <div className="space-y-4 w-full max-w-sm">
               <h2 className="text-sm font-medium text-gray-700 mb-4">Thông tin tài khoản</h2>
 
               {/* Avatar */}
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-bold text-white"
-                  style={{ background: "linear-gradient(135deg,#f9a8d4,#db2777)" }}>
+                  style={{ background: "#f4b6c2", color: "#333333" }}>
                   {name.charAt(0).toUpperCase()}
                 </div>
                 <div>
@@ -97,14 +97,14 @@ export default function SettingsPage() {
 
               <button onClick={saveProfile}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-all"
-                style={{ background: "linear-gradient(135deg,#f9a8d4,#db2777)" }}>
+                style={{ background: "#f4b6c2", color: "#333333" }}>
                 {saved ? <><CheckCircle size={14} /> Đã lưu</> : <><Save size={14} /> Lưu thay đổi</>}
               </button>
             </div>
           )}
 
           {tab === "security" && (
-            <div className="space-y-4 max-w-sm">
+            <div className="space-y-4 w-full max-w-sm">
               <h2 className="text-sm font-medium text-gray-700 mb-4">Bảo mật tài khoản</h2>
 
               <div>
@@ -135,7 +135,7 @@ export default function SettingsPage() {
 
               <button
                 className="px-4 py-2.5 rounded-xl text-sm font-medium text-white opacity-50 cursor-not-allowed"
-                style={{ background: "linear-gradient(135deg,#f9a8d4,#db2777)" }}
+                style={{ background: "#f4b6c2", color: "#333333" }}
                 title="Chức năng này cần tích hợp với API">
                 Đổi mật khẩu
               </button>
@@ -147,7 +147,7 @@ export default function SettingsPage() {
                 </p>
                 <button
                   className="px-4 py-2.5 rounded-xl text-sm font-medium text-white opacity-50 cursor-not-allowed"
-                  style={{ background: "rgba(249,168,212,0.35)" }}
+                  style={{ background: "rgba(244,182,194,0.35)" }}
                   title="Truy cập /admin/auth/totp/setup qua API">
                   Cài đặt 2FA
                 </button>
@@ -156,7 +156,7 @@ export default function SettingsPage() {
           )}
 
           {tab === "notifications" && (
-            <div className="space-y-4 max-w-sm">
+            <div className="space-y-4 w-full max-w-sm">
               <h2 className="text-sm font-medium text-gray-700 mb-4">Tùy chọn thông báo</h2>
 
               {[
@@ -168,13 +168,31 @@ export default function SettingsPage() {
                     <p className="text-sm text-gray-800">{label}</p>
                     <p className="text-xs text-gray-400 mt-0.5">{desc}</p>
                   </div>
-                  <button onClick={() => set(v => !v)}
-                    className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 mt-0.5 ${
-                      value ? "bg-pink-500" : "bg-white/10"
-                    }`}>
-                    <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
-                      value ? "translate-x-6" : "translate-x-1"
-                    }`} />
+                  <button
+                    onClick={() => set(v => !v)}
+                    role="switch"
+                    aria-checked={value}
+                    className="relative flex-shrink-0 mt-0.5 rounded-full transition-all duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-300 focus-visible:ring-offset-1 hover:brightness-95 active:scale-95"
+                    style={{
+                      width: 42, height: 24,
+                      background: value
+                        ? "linear-gradient(135deg, #f4b6c2 0%, #e090ae 100%)"
+                        : "#E5E7EB",
+                      boxShadow: value
+                        ? "inset 0 1px 3px rgba(180,60,100,0.15)"
+                        : "inset 0 1px 3px rgba(0,0,0,0.08)",
+                    }}
+                  >
+                    <span
+                      className="absolute rounded-full bg-white transition-transform duration-300 ease-in-out"
+                      style={{
+                        width: 18, height: 18,
+                        top: 3,
+                        left: 3,
+                        transform: value ? "translateX(18px)" : "translateX(0)",
+                        boxShadow: "0 1px 4px rgba(0,0,0,0.18)",
+                      }}
+                    />
                   </button>
                 </div>
               ))}

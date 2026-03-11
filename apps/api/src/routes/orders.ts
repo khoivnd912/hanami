@@ -93,7 +93,6 @@ const ordersRoutes: FastifyPluginAsync = async (fastify) => {
         nameVi:    product.nameVi,
         nameEn:    product.nameEn,
         gradient:  product.gradient,
-        petals:    product.petals,
         qty:       reqItem.qty,
         unitPrice: product.price,
         subtotal:  itemSubtotal,

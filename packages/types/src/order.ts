@@ -27,7 +27,6 @@ export const OrderItemSchema = z.object({
   nameVi:      z.string(),
   nameEn:      z.string(),
   gradient:    z.string(),
-  petals:      z.number(),
   qty:         z.number().int().positive(),
   unitPrice:   z.number().positive(),   // price at time of order (snapshot)
   subtotal:    z.number().positive(),

@@ -9,7 +9,7 @@ import { Pagination } from "@/components/Pagination";
 const TYPE_LABELS = { percent: "% Giảm giá", fixed: "Giảm cố định", free_shipping: "Miễn phí vận chuyển" };
 
 const EMPTY_FORM = {
-  code: "", type: "percent" as const, value: 0, minOrder: 0, usageLimit: 0, expiresAt: "", isActive: true,
+  code: "", type: "percent" as "percent" | "fixed" | "free_shipping", value: 0, minOrder: 0, usageLimit: 0, expiresAt: "", isActive: true,
 };
 
 export default function CouponsPage() {
@@ -80,19 +80,19 @@ export default function CouponsPage() {
     try {
       await api.deleteCoupon(id);
       await load();
-    } catch {
-      // ignore
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Lỗi xóa mã giảm giá");
     }
   }
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-4 sm:p-6 space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{ background: "linear-gradient(135deg,#f9a8d4,#db2777)" }}>
-            <Tag size={17} className="text-white" />
+            style={{ background: "#f4b6c2", color: "#333333" }}>
+            <Tag size={17} className="text-[#555]" />
           </div>
           <div>
             <h1 className="text-lg font-semibold text-gray-900">Mã giảm giá</h1>
@@ -105,7 +105,7 @@ export default function CouponsPage() {
           </button>
           <button onClick={openCreate}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-white transition-colors"
-            style={{ background: "linear-gradient(135deg,#f9a8d4,#db2777)" }}>
+            style={{ background: "#f4b6c2", color: "#333333" }}>
             <Plus size={14} /> Tạo mã
           </button>
         </div>
@@ -114,8 +114,9 @@ export default function CouponsPage() {
       {error && <p className="text-sm text-red-400">{error}</p>}
 
       {/* Table */}
-      <div className="rounded-2xl overflow-hidden border" style={{ borderColor: "rgba(249,168,212,0.25)" }}>
-        <table className="w-full text-sm">
+      <div className="rounded-2xl overflow-hidden border" style={{ borderColor: "rgba(244,182,194,0.25)" }}>
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[520px]">
           <thead>
             <tr className="text-left text-xs text-gray-500 uppercase tracking-wider"
               style={{ background: "rgba(255,255,255,0.03)" }}>
@@ -178,6 +179,7 @@ export default function CouponsPage() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {data && (
@@ -196,8 +198,8 @@ export default function CouponsPage() {
       {showForm && (
         <div className="fixed inset-0 z-50 flex justify-end" style={{ background: "rgba(0,0,0,0.6)" }}
           onClick={(e) => { if (e.target === e.currentTarget) setShowForm(false); }}>
-          <div className="w-full max-w-sm flex flex-col gap-4 p-6 h-full overflow-y-auto"
-            style={{ background: "#1e0d16", borderLeft: "1px solid rgba(249,168,212,0.28)" }}>
+          <div className="w-full max-w-sm sm:max-w-md flex flex-col gap-4 p-5 sm:p-6 h-full overflow-y-auto"
+            style={{ background: "#380d1c", borderLeft: "1px solid rgba(244,182,194,0.28)" }}>
             <h2 className="text-base font-semibold text-white">
               {editing ? "Chỉnh sửa mã giảm giá" : "Tạo mã giảm giá mới"}
             </h2>
@@ -245,7 +247,7 @@ export default function CouponsPage() {
               </button>
               <button onClick={save} disabled={saving}
                 className="flex-1 py-2.5 rounded-xl text-sm text-white font-medium transition-colors disabled:opacity-50"
-                style={{ background: "linear-gradient(135deg,#f9a8d4,#db2777)" }}>
+                style={{ background: "#f4b6c2", color: "#333333" }}>
                 {saving ? "Đang lưu…" : "Lưu"}
               </button>
             </div>

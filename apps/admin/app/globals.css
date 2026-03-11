@@ -3,6 +3,33 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ── Override Tailwind built-in pink/rose scale → pastel pink (#FAE8EE) ── */
+@theme {
+  --color-pink-50:  #fef5f7;
+  --color-pink-100: #fae8ee;
+  --color-pink-200: #f9d5e2;
+  --color-pink-300: #f4b6c2;
+  --color-pink-400: #f19cad;
+  --color-pink-500: #e8859a;
+  --color-pink-600: #d96b82;
+  --color-pink-700: #c05070;
+  --color-pink-800: #8a3050;
+  --color-pink-900: #5c1a30;
+  --color-pink-950: #380d1c;
+
+  --color-rose-50:  #fef5f7;
+  --color-rose-100: #fae8ee;
+  --color-rose-200: #f9d5e2;
+  --color-rose-300: #f4b6c2;
+  --color-rose-400: #f19cad;
+  --color-rose-500: #e8859a;
+  --color-rose-600: #d96b82;
+  --color-rose-700: #c05070;
+  --color-rose-800: #8a3050;
+  --color-rose-900: #5c1a30;
+  --color-rose-950: #380d1c;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -21,23 +48,30 @@
 
 :root {
   --radius: 0.5rem;
-  --background: #f8f9fb;
-  --foreground: #111827;
-  --card: #ffffff;
-  --card-foreground: #111827;
-  --primary: oklch(0.74 0.21 350);
-  --primary-foreground: #ffffff;
-  --muted: #fdf0f9;
-  --muted-foreground: #9b6880;
-  --border: #f5d0e8;
+  --background: #fef5f7;       /* very light pink page bg  */
+  --foreground: #333333;       /* main text                */
+  --card: #ffffff;             /* card bg                  */
+  --card-foreground: #333333;
+  --primary: oklch(0.790 0.070 350);   /* #F4B6C2 button  */
+  --primary-foreground: #333333;       /* dark text on btn */
+  --secondary: #ffffff;
+  --secondary-foreground: #e8859a;     /* #E8859A pink text */
+  --muted: #fef5f7;
+  --muted-foreground: #666666;         /* secondary text   */
+  --border: #f4b6c2;           /* #F4B6C2 borders          */
+  --input: #ffffff;
+  --ring: #f19cad;             /* #F19CAD focus ring       */
   --destructive: oklch(0.577 0.245 27);
 
-  /* Admin accent (Pastel) */
-  --hanami-pink:  #f9a8d4;
-  --hanami-rose:  #db2777;
-  --hanami-deep:  #6b2147;
-  --hanami-blush: #fde8f4;
-  --hanami-pale:  #fdf0f9;
+  /* Admin accent (Pastel Pink) */
+  --hanami-pink:  #f4b6c2;
+  --hanami-rose:  #d96b82;
+  --hanami-deep:  #8a3050;
+  --hanami-rich:  #c05070;
+  --hanami-blush: #fae8ee;
+  --hanami-pale:  #fef5f7;
+  --hanami-dark:  #380d1c;
+  --hanami-gold:  #c9a96e;
 }
 
 @layer base {
@@ -45,5 +79,15 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-roboto), Arial, sans-serif;
+  }
+}
+
+@layer utilities {
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 }

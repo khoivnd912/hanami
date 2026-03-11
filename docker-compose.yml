@@ -22,22 +22,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── Redis ──────────────────────────────────────────────────────────────────
-  redis:
-    image: redis:7.2-alpine
-    container_name: hanami_redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    command: redis-server --save 60 1 --loglevel warning
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
-
   # ── Mongo Express (DB GUI) ─────────────────────────────────────────────────
   mongo-express:
     image: mongo-express:1.0
@@ -65,18 +49,14 @@ services:
     depends_on:
       mongodb:
         condition: service_healthy
-      redis:
-        condition: service_healthy
     ports:
       - "4000:4000"
     env_file:
       - apps/api/.env
     environment:
       MONGODB_URI: mongodb://hanami:hanami_secret@mongodb:27017/hanami?authSource=admin
-      REDIS_URL: redis://redis:6379
     profiles:
       - full   # only starts with: docker compose --profile full up
 
 volumes:
   mongodb_data:
-  redis_data:

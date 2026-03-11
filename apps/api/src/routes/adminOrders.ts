@@ -1,28 +1,9 @@
-import type { FastifyPluginAsync, FastifyRequest, FastifyReply } from "fastify";
+import type { FastifyPluginAsync } from "fastify";
 import { OrderModel, AuditLogModel, ProductModel, InventoryLogModel } from "@hanami/db";
 import { UpdateOrderStatusSchema } from "@hanami/types";
-import { verifyAdminToken } from "../lib/jwt";
+import { requirePermission } from "../lib/middleware";
 import { sendDispatchNotification } from "../lib/email";
-
-// ─── Auth + RBAC hook ─────────────────────────────────────────────────────────
-
-function requirePermission(permission: string) {
-  return async (req: FastifyRequest, reply: FastifyReply) => {
-    const auth = req.headers.authorization;
-    if (!auth?.startsWith("Bearer ")) {
-      return reply.status(401).send({ success: false, error: "Unauthorized" });
-    }
-    try {
-      const payload = verifyAdminToken(auth.slice(7));
-      if (!payload.permissions.includes(permission)) {
-        return reply.status(403).send({ success: false, error: "Không có quyền thực hiện thao tác này" });
-      }
-      (req as FastifyRequest & { staff: typeof payload }).staff = payload;
-    } catch {
-      return reply.status(401).send({ success: false, error: "Token không hợp lệ" });
-    }
-  };
-}
+import { generateOrderNumber } from "../lib/orderNumber";
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
@@ -78,7 +59,7 @@ const adminOrdersRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.put<{ Params: { id: string } }>(
     "/:id/status", { preHandler: [requirePermission("orders:update")] },
     async (req, reply) => {
-      const staff = (req as FastifyRequest & { staff: ReturnType<typeof verifyAdminToken> }).staff;
+      const { staff } = req;
 
       const body = UpdateOrderStatusSchema.safeParse(req.body);
       if (!body.success) {
@@ -110,25 +91,26 @@ const adminOrdersRoutes: FastifyPluginAsync = async (fastify) => {
 
       // If cancelled, restore stock
       if (body.data.status === "cancelled" && prevStatus !== "cancelled") {
-        await Promise.all(
-          order.items.map(async (item) => {
-            const updated = await ProductModel.findByIdAndUpdate(
+        const updated = await Promise.all(
+          order.items.map((item) =>
+            ProductModel.findByIdAndUpdate(
               item.productId,
               { $inc: { stock: item.qty } },
               { new: true }
-            );
-            if (updated) {
-              await InventoryLogModel.create({
-                productId:  item.productId,
-                delta:      item.qty,
-                reason:     "order_cancelled",
-                orderId:    order._id,
-                staffId:    staff.sub,
-                stockAfter: updated.stock,
-              });
-            }
-          })
+            ).then((p) => p ? { item, stockAfter: p.stock } : null)
+          )
         );
+        const logs = updated
+          .filter((r): r is { item: (typeof order.items)[number]; stockAfter: number } => r !== null)
+          .map(({ item, stockAfter }) => ({
+            productId:  item.productId,
+            delta:      item.qty,
+            reason:     "order_cancelled",
+            orderId:    order._id,
+            staffId:    staff.sub,
+            stockAfter,
+          }));
+        if (logs.length) await InventoryLogModel.insertMany(logs);
       }
 
       // Audit
@@ -144,6 +126,108 @@ const adminOrdersRoutes: FastifyPluginAsync = async (fastify) => {
       });
 
       return reply.send({ success: true, data: order.toJSON() });
+    }
+  );
+
+  // ── POST /admin/orders/manual ───────────────────────────────────────────────
+  fastify.post(
+    "/manual", { preHandler: [requirePermission("orders:update")] },
+    async (req, reply) => {
+      const { staff } = req;
+
+      const {
+        customerName,
+        phone,
+        address,
+        source       = "other",
+        items        = [],
+        paymentMethod = "cod",
+        paymentStatus = "pending",
+        note,
+        staffNote,
+        createdAt: customDate,
+      } = req.body as {
+        customerName:  string;
+        phone:         string;
+        address?:      string;
+        source?:       string;
+        items:         { name: string; qty: number; unitPrice: number }[];
+        paymentMethod?: string;
+        paymentStatus?: string;
+        note?:         string;
+        staffNote?:    string;
+        createdAt?:    string;
+      };
+
+      if (!customerName?.trim() || !phone?.trim()) {
+        return reply.status(400).send({ success: false, error: "Tên và số điện thoại là bắt buộc" });
+      }
+      if (!items.length) {
+        return reply.status(400).send({ success: false, error: "Phải có ít nhất 1 sản phẩm" });
+      }
+
+      const orderItems = items.map((it) => ({
+        slug:      "manual",
+        nameVi:    it.name.trim(),
+        nameEn:    it.name.trim(),
+        gradient:  "",
+        qty:       it.qty,
+        unitPrice: it.unitPrice,
+        subtotal:  it.qty * it.unitPrice,
+      }));
+
+      const subtotal = orderItems.reduce((s, it) => s + it.subtotal, 0);
+      const orderNumber = await generateOrderNumber();
+      const fullAddress = address?.trim() || phone.trim();
+
+      const order = await OrderModel.create({
+        orderNumber,
+        items:  orderItems,
+        shippingAddress: {
+          name:  customerName.trim(),
+          phone: phone.trim(),
+          full:  fullAddress,
+        },
+        note:          note?.trim(),
+        staffNote:     staffNote?.trim(),
+        status:        "confirmed",
+        paymentMethod: ["cod", "vnpay", "momo"].includes(paymentMethod) ? paymentMethod : "cod",
+        paymentStatus: ["pending", "paid", "failed"].includes(paymentStatus) ? paymentStatus : "pending",
+        subtotal,
+        shippingFee: 0,
+        discount:    0,
+        total:       subtotal,
+        source,
+        statusHistory: [{ status: "confirmed", note: `Nhập tay từ ${source}`, at: new Date() }],
+        ...(customDate ? { createdAt: new Date(customDate) } : {}),
+      });
+
+      await AuditLogModel.create({
+        actorId:    staff.sub,
+        actorType:  "staff",
+        actorName:  staff.email,
+        action:     "order.create.manual",
+        resource:   "Order",
+        resourceId: String(order._id),
+        diff:       { source, total: subtotal },
+        ip:         req.ip,
+      });
+
+      return reply.status(201).send({ success: true, data: order.toJSON() });
+    }
+  );
+
+  // ── DELETE /admin/orders/:id ─────────────────────────────────────────────────
+  fastify.delete<{ Params: { id: string } }>(
+    "/:id", { preHandler: [requirePermission("orders:update")] },
+    async (req, reply) => {
+      const order = await OrderModel.findById(req.params.id);
+      if (!order) return reply.status(404).send({ success: false, error: "Không tìm thấy đơn hàng" });
+      if (!["manual", "facebook", "zalo", "instagram", "other"].includes(order.source ?? "")) {
+        return reply.status(403).send({ success: false, error: "Chỉ có thể xoá đơn nhập tay" });
+      }
+      await order.deleteOne();
+      return reply.send({ success: true, data: null });
     }
   );
 

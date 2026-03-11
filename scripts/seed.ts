@@ -29,7 +29,6 @@ const ProductSchema = new mongoose.Schema({
   originalPrice: Number,
   tag:           String,
   gradient:      { type: String, required: true },
-  petals:        { type: Number, default: 5 },
   stock:         { type: Number, default: 0 },
   isActive:      { type: Boolean, default: true },
   specs:         [{ labelVi: String, labelEn: String, valueVi: String, valueEn: String }],
@@ -63,7 +62,6 @@ const PRODUCTS = [
     originalPrice: 1100000,
     tag: "bestseller",
     gradient: "linear-gradient(135deg, #fce4ec 0%, #f8bbd0 50%, #f48fb1 100%)",
-    petals: 8,
     stock: 50,
     specs: [
       { labelVi: "Kích thước", labelEn: "Size",     valueVi: "15cm × 25cm", valueEn: "15cm × 25cm" },
@@ -82,7 +80,6 @@ const PRODUCTS = [
     originalPrice: undefined,
     tag: "new",
     gradient: "linear-gradient(135deg, #e8eaf6 0%, #c5cae9 50%, #9fa8da 100%)",
-    petals: 12,
     stock: 30,
     specs: [
       { labelVi: "Kích thước", labelEn: "Size",     valueVi: "12cm × 28cm", valueEn: "12cm × 28cm" },
@@ -101,7 +98,6 @@ const PRODUCTS = [
     originalPrice: 890000,
     tag: "sale",
     gradient: "linear-gradient(135deg, #fff9c4 0%, #fff176 50%, #ffee58 100%)",
-    petals: 16,
     stock: 75,
     specs: [
       { labelVi: "Kích thước", labelEn: "Size",     valueVi: "18cm × 22cm", valueEn: "18cm × 22cm" },
@@ -120,7 +116,6 @@ const PRODUCTS = [
     originalPrice: undefined,
     tag: "limited",
     gradient: "linear-gradient(135deg, #f5f5f5 0%, #eeeeee 50%, #e0e0e0 100%)",
-    petals: 6,
     stock: 15,
     specs: [
       { labelVi: "Kích thước", labelEn: "Size",     valueVi: "10cm × 32cm", valueEn: "10cm × 32cm" },
@@ -139,7 +134,6 @@ const PRODUCTS = [
     originalPrice: undefined,
     tag: undefined,
     gradient: "linear-gradient(135deg, #fce4ec 0%, #f48fb1 50%, #e91e8c 100%)",
-    petals: 10,
     stock: 60,
     specs: [
       { labelVi: "Kích thước", labelEn: "Size",     valueVi: "14cm × 24cm", valueEn: "14cm × 24cm" },
@@ -158,7 +152,6 @@ const PRODUCTS = [
     originalPrice: 720000,
     tag: "sale",
     gradient: "linear-gradient(135deg, #fafafa 0%, #f0f4f8 50%, #e2e8f0 100%)",
-    petals: 20,
     stock: 100,
     specs: [
       { labelVi: "Kích thước", labelEn: "Size",     valueVi: "20cm × 20cm", valueEn: "20cm × 20cm" },
@@ -177,7 +170,6 @@ const PRODUCTS = [
     originalPrice: undefined,
     tag: "bestseller",
     gradient: "linear-gradient(135deg, #ffd6e0 0%, #ffadc5 50%, #ff85aa 100%)",
-    petals: 9,
     stock: 40,
     specs: [
       { labelVi: "Kích thước", labelEn: "Size",     valueVi: "16cm × 26cm", valueEn: "16cm × 26cm" },
@@ -196,7 +188,6 @@ const PRODUCTS = [
     originalPrice: 980000,
     tag: "sale",
     gradient: "linear-gradient(135deg, #fffde7 0%, #fff9c4 50%, #f9a825 100%)",
-    petals: 14,
     stock: 35,
     specs: [
       { labelVi: "Kích thước", labelEn: "Size",     valueVi: "20cm × 28cm", valueEn: "20cm × 28cm" },
@@ -231,7 +222,6 @@ async function seed() {
       originalPrice: p.originalPrice,
       tag:           p.tag,
       gradient:      p.gradient,
-      petals:        p.petals,
       stock:         p.stock,
       isActive:      true,
       // Map old {labelEn, valueEn} → {label, value}
@@ -245,9 +235,27 @@ async function seed() {
   const OWNER_EMAIL    = process.env.OWNER_EMAIL ?? "owner@hanami.vn";
   const OWNER_PASSWORD = "Hanami@2026!"; // change after first login
 
+  const OWNER_PERMISSIONS = [
+    "orders:read", "orders:update", "orders:refund",
+    "products:read", "products:write",
+    "customers:read", "customers:manage",
+    "staff:manage",
+    "coupons:manage",
+    "analytics:read",
+    "audit:read",
+    "settings:manage",
+    "consultations:read", "consultations:write",
+    "content:write",
+  ];
+
   const ownerExists = await StaffUser.findOne({ email: OWNER_EMAIL });
   if (ownerExists) {
-    console.log(`  ⏭  Skip: OWNER account (${OWNER_EMAIL}) already exists`);
+    // Patch missing permissions on existing OWNER (e.g. added after initial seed)
+    await StaffUser.updateOne(
+      { email: OWNER_EMAIL },
+      { $addToSet: { permissions: { $each: OWNER_PERMISSIONS } } }
+    );
+    console.log(`  ✅ OWNER permissions synced (${OWNER_EMAIL})`);
   } else {
     const hashed = await bcrypt.hash(OWNER_PASSWORD, 12);
     await StaffUser.create({
@@ -255,16 +263,7 @@ async function seed() {
       name:           "Hanami Owner",
       hashedPassword: hashed,
       role:           "OWNER",
-      permissions: [
-        "orders:read", "orders:update", "orders:refund",
-        "products:read", "products:write",
-        "customers:read", "customers:manage",
-        "staff:manage",
-        "coupons:manage",
-        "analytics:read",
-        "audit:read",
-        "settings:manage",
-      ],
+      permissions: OWNER_PERMISSIONS,
       totpEnabled: false,
       isActive:    true,
     });

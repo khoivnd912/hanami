@@ -5,7 +5,6 @@ import {
   signAccessToken, signRefreshToken,
   verifyRefreshToken,
 } from "../lib/jwt";
-import { redisSet, redisGet, redisDel, redisIncr } from "../lib/redis";
 import crypto from "crypto";
 
 const authRoutes: FastifyPluginAsync = async (fastify) => {
@@ -42,7 +41,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 
     const accessToken  = signAccessToken({ sub: customer.id, role: "customer", email });
     const refreshToken = signRefreshToken({ sub: customer.id });
-    await redisSet(`refresh:${hashToken(refreshToken)}`, customer.id, 60 * 60 * 24 * 7);
+    await saveRefreshToken(customer.id, refreshToken);
 
     return reply.status(201).send({
       success: true,
@@ -52,13 +51,6 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 
   // ── POST /auth/login ────────────────────────────────────────────────────────
   fastify.post("/login", async (req, reply) => {
-    const ip = req.ip;
-    const rateLimitKey = `rate:login:${ip}`;
-    const attempts = await redisIncr(rateLimitKey, 60 * 15);
-    if (attempts > 10) {
-      return reply.status(429).send({ success: false, error: "Quá nhiều lần đăng nhập. Thử lại sau 15 phút." });
-    }
-
     const body = LoginSchema.safeParse(req.body);
     if (!body.success) {
       return reply.status(400).send({ success: false, error: "Email hoặc mật khẩu không hợp lệ" });
@@ -76,7 +68,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 
     const accessToken  = signAccessToken({ sub: customer.id, role: "customer", email });
     const refreshToken = signRefreshToken({ sub: customer.id });
-    await redisSet(`refresh:${hashToken(refreshToken)}`, customer.id, 60 * 60 * 24 * 7);
+    await saveRefreshToken(customer.id, refreshToken);
 
     return reply.send({
       success: true,
@@ -94,19 +86,26 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
     try {
       const payload = verifyRefreshToken(refreshToken);
       const hash    = hashToken(refreshToken);
-      const stored  = await redisGet(`refresh:${hash}`);
-      if (!stored) return reply.status(401).send({ success: false, error: "Token không hợp lệ hoặc đã hết hạn" });
+      const now     = new Date();
 
-      const customer = await CustomerModel.findById(payload.sub);
-      if (!customer || !customer.isActive) {
+      const customer = await CustomerModel.findOne({
+        _id: payload.sub,
+        refreshTokenHash:      hash,
+        refreshTokenExpiresAt: { $gt: now },
+      }).select("+refreshTokenHash +refreshTokenExpiresAt");
+
+      if (!customer) {
+        return reply.status(401).send({ success: false, error: "Token không hợp lệ hoặc đã hết hạn" });
+      }
+
+      if (!customer.isActive) {
         return reply.status(401).send({ success: false, error: "Tài khoản không tồn tại" });
       }
 
       // Rotate tokens
-      await redisDel(`refresh:${hash}`);
       const newAccess  = signAccessToken({ sub: customer.id, role: "customer", email: customer.email });
       const newRefresh = signRefreshToken({ sub: customer.id });
-      await redisSet(`refresh:${hashToken(newRefresh)}`, customer.id, 60 * 60 * 24 * 7);
+      await saveRefreshToken(customer.id, newRefresh);
 
       return reply.send({ success: true, data: { accessToken: newAccess, refreshToken: newRefresh } });
     } catch {
@@ -118,11 +117,24 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.post("/logout", async (req, reply) => {
     const { refreshToken } = req.body as { refreshToken?: string };
     if (refreshToken) {
-      await redisDel(`refresh:${hashToken(refreshToken)}`);
+      const hash = hashToken(refreshToken);
+      await CustomerModel.findOneAndUpdate(
+        { refreshTokenHash: hash },
+        { $unset: { refreshTokenHash: 1, refreshTokenExpiresAt: 1 } }
+      );
     }
     return reply.send({ success: true, data: null });
   });
 };
+
+async function saveRefreshToken(customerId: string, refreshToken: string) {
+  const hash      = hashToken(refreshToken);
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+  await CustomerModel.findByIdAndUpdate(customerId, {
+    refreshTokenHash:      hash,
+    refreshTokenExpiresAt: expiresAt,
+  });
+}
 
 function hashToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex");

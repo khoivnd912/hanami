@@ -26,7 +26,6 @@ export const ProductSchema = z.object({
   descriptionVi:  z.array(z.string()),
   descriptionEn:  z.array(z.string()),
   specs:          z.array(SpecSchema),
-  petals:         z.number().int().min(1),
   stock:          z.number().int().min(0),
   isActive:       z.boolean(),
   createdAt:      z.string().datetime(),

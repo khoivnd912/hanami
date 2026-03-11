@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  createContext, useContext, useState, useEffect,
+  createContext, useContext, useState, useEffect, startTransition,
   type ReactNode,
 } from "react";
 import { translations, type Lang } from "./translations";
@@ -20,6 +20,7 @@ const LangContext = createContext<LangCtx | null>(null);
 
 const STORAGE_KEY  = "hanami-lang";
 const DEFAULT_LANG: Lang = "vi";
+const VALID_LANGS  = new Set(Object.keys(translations));
 
 // ─── Provider ───────────────────────────────────────────────────────────────
 
@@ -30,7 +31,7 @@ export function LangProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored === "en" || stored === "vi") setLangState(stored);
+      if (stored && VALID_LANGS.has(stored)) startTransition(() => setLangState(stored as Lang));
     } catch {/* ignore */}
   }, []);
 

@@ -20,34 +20,34 @@ export interface OrderDocument extends Document {
   couponCode?:    string;
   trackingCode?:  string;
   staffNote?:     string;
+  source?:        string;
   statusHistory:  StatusHistoryEntry[];
   createdAt:      Date;
   updatedAt:      Date;
 }
 
 interface OrderItemDoc {
-  productId:  Schema.Types.ObjectId;
-  slug:       string;
-  nameVi:     string;
-  nameEn:     string;
-  gradient:   string;
-  petals:     number;
-  qty:        number;
-  unitPrice:  number;
-  subtotal:   number;
+  productId?:  Schema.Types.ObjectId;
+  slug:        string;
+  nameVi:      string;
+  nameEn:      string;
+  gradient:    string;
+  qty:         number;
+  unitPrice:   number;
+  subtotal:    number;
 }
 
 interface ShippingAddressDoc {
-  name:         string;
-  phone:        string;
-  province:     string;
-  provinceName: string;
-  district:     string;
-  districtName: string;
-  ward:         string;
-  wardName:     string;
-  detail:       string;
-  full:         string;
+  name:          string;
+  phone:         string;
+  province?:     string;
+  provinceName?: string;
+  district?:     string;
+  districtName?: string;
+  ward?:         string;
+  wardName?:     string;
+  detail?:       string;
+  full:          string;
 }
 
 interface StatusHistoryEntry {
@@ -61,12 +61,11 @@ interface StatusHistoryEntry {
 
 const OrderItemSchema = new Schema<OrderItemDoc>(
   {
-    productId: { type: Schema.Types.ObjectId, ref: "Product", required: true },
+    productId: { type: Schema.Types.ObjectId, ref: "Product" },
     slug:      { type: String, required: true },
     nameVi:    { type: String, required: true },
     nameEn:    { type: String, required: true },
-    gradient:  { type: String, required: true },
-    petals:    { type: Number, required: true },
+    gradient:  { type: String, default: "" },
     qty:       { type: Number, required: true, min: 1 },
     unitPrice: { type: Number, required: true },
     subtotal:  { type: Number, required: true },
@@ -78,13 +77,13 @@ const ShippingAddressSchema = new Schema<ShippingAddressDoc>(
   {
     name:         { type: String, required: true },
     phone:        { type: String, required: true },
-    province:     { type: String, required: true },
-    provinceName: { type: String, required: true },
-    district:     { type: String, required: true },
-    districtName: { type: String, required: true },
-    ward:         { type: String, required: true },
-    wardName:     { type: String, required: true },
-    detail:       { type: String, required: true },
+    province:     { type: String, default: "" },
+    provinceName: { type: String, default: "" },
+    district:     { type: String, default: "" },
+    districtName: { type: String, default: "" },
+    ward:         { type: String, default: "" },
+    wardName:     { type: String, default: "" },
+    detail:       { type: String, default: "" },
     full:         { type: String, required: true },
   },
   { _id: false }
@@ -124,6 +123,7 @@ const OrderSchema = new Schema<OrderDocument>(
     couponCode:     { type: String },
     trackingCode:   { type: String },
     staffNote:      { type: String },
+    source:         { type: String, default: "website" },
     statusHistory:  [StatusHistorySchema],
   },
   {

@@ -6,6 +6,16 @@ import { formatDate } from "@/lib/utils";
 import { ScrollText, RefreshCw, ChevronDown } from "lucide-react";
 import { Pagination } from "@/components/Pagination";
 
+const RESOURCE_COLORS: Record<string, string> = {
+  Order:        "text-blue-400 bg-blue-500/10",
+  Product:      "text-purple-400 bg-purple-500/10",
+  StaffUser:    "text-amber-400 bg-amber-500/10",
+  Customer:     "text-cyan-400 bg-cyan-500/10",
+  Coupon:       "text-emerald-400 bg-emerald-500/10",
+  Consultation: "text-rose-400 bg-rose-500/10",
+  SiteContent:  "text-indigo-400 bg-indigo-500/10",
+};
+
 export default function AuditPage() {
   const [logs,    setLogs]    = useState<AuditLog[]>([]);
   const [total,   setTotal]   = useState(0);
@@ -37,20 +47,14 @@ export default function AuditPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const RESOURCE_COLORS: Record<string, string> = {
-    Order:    "text-blue-400 bg-blue-500/10",
-    Product:  "text-purple-400 bg-purple-500/10",
-    StaffUser:"text-amber-400 bg-amber-500/10",
-  };
-
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-4 sm:p-6 space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{ background: "linear-gradient(135deg,#f9a8d4,#db2777)" }}>
-            <ScrollText size={17} className="text-white" />
+            style={{ background: "#f4b6c2", color: "#333333" }}>
+            <ScrollText size={17} className="text-[#555]" />
           </div>
           <div>
             <h1 className="text-lg font-semibold text-gray-900">Nhật ký hệ thống</h1>
@@ -69,6 +73,10 @@ export default function AuditPage() {
           <option value="">Tất cả tài nguyên</option>
           <option value="Order">Đơn hàng</option>
           <option value="Product">Sản phẩm</option>
+          <option value="Customer">Khách hàng</option>
+          <option value="Coupon">Mã giảm giá</option>
+          <option value="Consultation">Tư vấn</option>
+          <option value="SiteContent">Nội dung trang</option>
           <option value="StaffUser">Nhân viên</option>
         </select>
         <input value={action} onChange={(e) => { setAction(e.target.value); setPage(1); }}
@@ -89,7 +97,7 @@ export default function AuditPage() {
         ) : (
           logs.map((log) => (
             <div key={log._id} className="rounded-xl border overflow-hidden"
-              style={{ borderColor: "rgba(249,168,212,0.20)", background: "rgba(255,255,255,0.02)" }}>
+              style={{ borderColor: "rgba(244,182,194,0.20)", background: "rgba(255,255,255,0.02)" }}>
               <button className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/[0.03] transition-colors"
                 onClick={() => setExpanded(expanded === log._id ? null : log._id)}>
                 <span className={`px-2 py-0.5 rounded-lg text-xs font-medium flex-shrink-0 ${
@@ -98,8 +106,8 @@ export default function AuditPage() {
                   {log.resource}
                 </span>
                 <span className="text-sm text-gray-800 font-mono">{log.action}</span>
-                <span className="text-xs text-gray-500 ml-auto">{log.actorName}</span>
-                <span className="text-xs text-gray-600 flex-shrink-0">{formatDate(log.createdAt)}</span>
+                <span className="text-xs text-gray-500 ml-auto hidden sm:inline">{log.actorName}</span>
+                <span className="text-xs text-gray-600 flex-shrink-0 hidden sm:inline">{formatDate(log.createdAt)}</span>
                 <ChevronDown size={13} className={`text-gray-500 transition-transform flex-shrink-0 ${
                   expanded === log._id ? "rotate-180" : ""
                 }`} />
@@ -107,12 +115,12 @@ export default function AuditPage() {
 
               {expanded === log._id && (
                 <div className="px-4 pb-3 pt-1 border-t" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
-                  <div className="grid grid-cols-2 gap-2 text-xs text-gray-400 mb-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-400 mb-2">
                     <span>Actor ID: <span className="text-gray-300 font-mono">{log.actorId}</span></span>
                     <span>Resource ID: <span className="text-gray-300 font-mono">{log.resourceId}</span></span>
                     {log.ip && <span>IP: <span className="text-gray-300">{log.ip}</span></span>}
                   </div>
-                  {log.diff && (
+                  {log.diff != null && (
                     <pre className="text-xs text-gray-400 bg-black/20 rounded-lg p-3 overflow-x-auto max-h-40">
                       {JSON.stringify(log.diff, null, 2)}
                     </pre>

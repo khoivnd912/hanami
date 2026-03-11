@@ -90,11 +90,11 @@ export default function ConsultationsPage() {
   return (
     <div className="flex h-screen overflow-hidden">
       {/* ── List ── */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <div className="px-6 py-4 border-b border-gray-100 bg-white">
           <div className="flex items-center justify-between mb-3">
             <h1 className="text-xl font-semibold text-gray-900">Tư vấn hoa</h1>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               {STATUS_OPTIONS.slice(1).map((s) => (
                 <button
                   key={s.value}
@@ -111,7 +111,7 @@ export default function ConsultationsPage() {
               ))}
             </div>
           </div>
-          <div className="relative max-w-xs">
+          <div className="relative w-full max-w-xs">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
@@ -134,14 +134,16 @@ export default function ConsultationsPage() {
               <p className="text-sm">Chưa có yêu cầu tư vấn nào</p>
             </div>
           ) : (
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[500px]">
               <thead className="bg-gray-50 border-b border-gray-100 sticky top-0">
                 <tr>
-                  {["Khách hàng", "Ngày giao hoa", "Nội dung", "Trạng thái", "Ngày gửi", ""].map((h) => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                      {h}
-                    </th>
-                  ))}
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Khách hàng</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Ngày giao hoa</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide hidden md:table-cell">Nội dung</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Trạng thái</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Ngày gửi</th>
+                  <th className="px-4 py-3"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -155,18 +157,18 @@ export default function ConsultationsPage() {
                       <p className="font-medium text-gray-900">{c.name}</p>
                       <p className="text-xs text-gray-400">{c.email}</p>
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-500">
+                    <td className="px-4 py-3 text-xs text-gray-500 hidden sm:table-cell">
                       {c.deliveryDate || <span className="text-gray-300">—</span>}
                     </td>
-                    <td className="px-4 py-3 max-w-[260px]">
+                    <td className="px-4 py-3 max-w-[220px] hidden md:table-cell">
                       <p className="text-xs text-gray-600 truncate">{c.message}</p>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={cn("text-xs px-2 py-0.5 rounded-full font-medium", STATUS_COLORS[c.status])}>
+                      <span className={cn("text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap", STATUS_COLORS[c.status])}>
                         {STATUS_LABELS[c.status]}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-400">{formatDate(c.createdAt)}</td>
+                    <td className="px-4 py-3 text-xs text-gray-400 hidden sm:table-cell">{formatDate(c.createdAt)}</td>
                     <td className="px-4 py-3">
                       <ChevronDown size={14} className="text-gray-300 -rotate-90" />
                     </td>
@@ -174,6 +176,7 @@ export default function ConsultationsPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
 
@@ -192,7 +195,9 @@ export default function ConsultationsPage() {
 
       {/* ── Detail drawer ── */}
       {selected && (
-        <div className="w-96 border-l border-gray-100 bg-white flex flex-col overflow-hidden shadow-xl">
+        <>
+          <div className="fixed inset-0 bg-black/30 z-30 lg:hidden" onClick={() => setSelected(null)} />
+          <div className="fixed right-0 inset-y-0 w-full max-w-sm z-40 lg:static lg:w-96 lg:max-w-none border-l border-gray-100 bg-white flex flex-col overflow-hidden shadow-xl">
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
             <h2 className="font-semibold text-gray-900">Chi tiết yêu cầu</h2>
             <button onClick={() => setSelected(null)} className="p-1.5 rounded-lg hover:bg-gray-100">
@@ -282,12 +287,13 @@ export default function ConsultationsPage() {
               onClick={() => saveNote(selected)}
               disabled={saving}
               className="w-full py-2.5 rounded-xl text-sm font-medium text-white disabled:opacity-60 transition-colors"
-              style={{ background: "linear-gradient(135deg, #f9a8d4, #db2777)" }}
+              style={{ background: "#f4b6c2", color: "#333333" }}
             >
               {saving ? "Đang lưu..." : "Lưu ghi chú"}
             </button>
           </div>
-        </div>
+          </div>
+        </>
       )}
     </div>
   );

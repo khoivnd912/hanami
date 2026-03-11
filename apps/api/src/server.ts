@@ -19,6 +19,9 @@ import adminAuditRoutes          from "./routes/adminAudit";
 import adminUploadRoutes, { serveUploads } from "./routes/adminUpload";
 import consultationsRoutes       from "./routes/consultations";
 import adminConsultationsRoutes  from "./routes/adminConsultations";
+import siteContentRoutes         from "./routes/siteContent";
+import adminSiteContentRoutes    from "./routes/adminSiteContent";
+import guestOrdersRoutes         from "./routes/guestOrders";
 
 // ─── Bootstrap ────────────────────────────────────────────────────────────────
 
@@ -67,6 +70,7 @@ async function bootstrap() {
   fastify.register(authRoutes,            { prefix: `${prefix}/auth` });
   fastify.register(productsRoutes,        { prefix: `${prefix}/products` });
   fastify.register(ordersRoutes,          { prefix: `${prefix}/orders` });
+  fastify.register(guestOrdersRoutes,     { prefix: `${prefix}/orders/guest` });
   fastify.register(consultationsRoutes,   { prefix: `${prefix}/consultations` });
 
   // Admin sub-routes
@@ -80,6 +84,8 @@ async function bootstrap() {
   fastify.register(adminAuditRoutes,          { prefix: `${prefix}/admin/audit` });
   fastify.register(adminUploadRoutes,         { prefix: `${prefix}/admin/upload` });
   fastify.register(adminConsultationsRoutes,  { prefix: `${prefix}/admin/consultations` });
+  fastify.register(siteContentRoutes,         { prefix: `${prefix}/site-content` });
+  fastify.register(adminSiteContentRoutes,    { prefix: `${prefix}/admin/site-content` });
 
   // Static uploads (served without /api/v1 prefix)
   await serveUploads(fastify);

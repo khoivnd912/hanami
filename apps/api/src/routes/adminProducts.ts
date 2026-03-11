@@ -1,23 +1,7 @@
-import type { FastifyPluginAsync, FastifyRequest, FastifyReply } from "fastify";
+import type { FastifyPluginAsync } from "fastify";
 import { ProductModel, AuditLogModel, InventoryLogModel } from "@hanami/db";
 import { CreateProductSchema, UpdateProductSchema } from "@hanami/types";
-import { verifyAdminToken } from "../lib/jwt";
-
-function requirePermission(permission: string) {
-  return async (req: FastifyRequest, reply: FastifyReply) => {
-    const auth = req.headers.authorization;
-    if (!auth?.startsWith("Bearer ")) return reply.status(401).send({ success: false, error: "Unauthorized" });
-    try {
-      const payload = verifyAdminToken(auth.slice(7));
-      if (!payload.permissions.includes(permission)) {
-        return reply.status(403).send({ success: false, error: "Không có quyền" });
-      }
-      (req as FastifyRequest & { staff: typeof payload }).staff = payload;
-    } catch {
-      return reply.status(401).send({ success: false, error: "Token không hợp lệ" });
-    }
-  };
-}
+import { requirePermission } from "../lib/middleware";
 
 const adminProductsRoutes: FastifyPluginAsync = async (fastify) => {
 
@@ -45,7 +29,7 @@ const adminProductsRoutes: FastifyPluginAsync = async (fastify) => {
 
   // ── POST /admin/products ────────────────────────────────────────────────────
   fastify.post("/", { preHandler: [requirePermission("products:write")] }, async (req, reply) => {
-    const staff = (req as FastifyRequest & { staff: ReturnType<typeof verifyAdminToken> }).staff;
+    const { staff } = req;
     const body  = CreateProductSchema.safeParse(req.body);
     if (!body.success) {
       return reply.status(400).send({
@@ -84,7 +68,7 @@ const adminProductsRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.put<{ Params: { id: string } }>(
     "/:id", { preHandler: [requirePermission("products:write")] },
     async (req, reply) => {
-      const staff  = (req as FastifyRequest & { staff: ReturnType<typeof verifyAdminToken> }).staff;
+      const { staff } = req;
       const body   = UpdateProductSchema.safeParse(req.body);
       if (!body.success) {
         return reply.status(400).send({ success: false, error: "Dữ liệu không hợp lệ" });
@@ -121,7 +105,7 @@ const adminProductsRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.delete<{ Params: { id: string } }>(
     "/:id", { preHandler: [requirePermission("products:write")] },
     async (req, reply) => {
-      const staff = (req as FastifyRequest & { staff: ReturnType<typeof verifyAdminToken> }).staff;
+      const { staff } = req;
       const product = await ProductModel.findByIdAndUpdate(
         req.params.id, { isActive: false }, { new: true }
       );

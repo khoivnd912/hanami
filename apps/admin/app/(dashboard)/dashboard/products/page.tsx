@@ -21,7 +21,7 @@ function normalizeTag(raw?: string | null): string {
 
 const EMPTY_FORM = {
   slug: "", nameVi: "", nameEn: "", price: "", originalPrice: "",
-  tag: "", stock: "", petals: "6", isActive: true,
+  tag: "", stock: "", isActive: true,
   imageUrl: "",
   descriptionVi: "", descriptionEn: "",
 };
@@ -85,7 +85,7 @@ export default function ProductsPage() {
       slug: p.slug, nameVi: p.nameVi, nameEn: p.nameEn,
       price: String(p.price), originalPrice: String(p.originalPrice ?? ""),
       tag: normalizeTag(p.tag),           // fix legacy lowercase tags
-      stock: String(p.stock), petals: String(p.petals),
+      stock: String(p.stock),
       isActive: p.isActive,
       imageUrl: p.imageUrl ?? "",
       descriptionVi: "", descriptionEn: "",
@@ -105,7 +105,6 @@ export default function ProductsPage() {
         originalPrice: form.originalPrice ? Number(form.originalPrice) : undefined,
         tag:           validTag,
         stock:         Number(form.stock),
-        petals:        Number(form.petals),
         isActive:      form.isActive,
         imageUrl:      form.imageUrl || undefined,
       };
@@ -145,13 +144,13 @@ export default function ProductsPage() {
   return (
     <div className="flex h-screen overflow-hidden">
       {/* ── Products list ──────────────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <div className="px-6 py-4 border-b border-gray-100 bg-white">
           <div className="flex items-center justify-between mb-3">
             <h1 className="text-xl font-semibold text-gray-900">Sản phẩm</h1>
             <button onClick={openCreate}
               className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white"
-              style={{ background: "linear-gradient(135deg, #f9a8d4, #db2777)" }}
+              style={{ background: "#f4b6c2", color: "#333333" }}
             >
               <Plus size={14} /> Thêm sản phẩm
             </button>
@@ -172,12 +171,17 @@ export default function ProductsPage() {
               <div className="w-6 h-6 border-2 border-pink-400 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : (
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[560px]">
               <thead className="bg-gray-50 border-b border-gray-100 sticky top-0">
                 <tr>
-                  {["Sản phẩm", "Giá", "Tồn kho", "Tag", "Trạng thái", "Ngày tạo", ""].map((h) => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
-                  ))}
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Sản phẩm</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Giá</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Tồn kho</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Tag</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Trạng thái</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide hidden md:table-cell">Ngày tạo</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -203,7 +207,7 @@ export default function ProductsPage() {
                         {p.stock}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 hidden sm:table-cell">
                       {p.tag && (
                         <span className="text-xs px-2 py-0.5 rounded-full bg-pink-100 text-pink-700">{p.tag}</span>
                       )}
@@ -215,7 +219,7 @@ export default function ProductsPage() {
                         {p.isActive ? "Đang bán" : "Đã ẩn"}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-400">{formatDate(p.createdAt)}</td>
+                    <td className="px-4 py-3 text-xs text-gray-400 hidden md:table-cell">{formatDate(p.createdAt)}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <button onClick={() => openEdit(p)}
@@ -236,6 +240,7 @@ export default function ProductsPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
 
@@ -255,7 +260,9 @@ export default function ProductsPage() {
 
       {/* ── Product form drawer ────────────────────────────────────────────── */}
       {creating && (
-        <div className="w-96 border-l border-gray-100 bg-white flex flex-col overflow-hidden shadow-xl">
+        <>
+          <div className="fixed inset-0 bg-black/30 z-30 lg:hidden" onClick={() => setCreating(false)} />
+          <div className="fixed right-0 inset-y-0 w-full max-w-sm z-40 lg:static lg:w-96 lg:max-w-none border-l border-gray-100 bg-white flex flex-col overflow-hidden shadow-xl">
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
             <h2 className="font-semibold text-gray-900">{editing ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới"}</h2>
             <button onClick={() => setCreating(false)} className="p-1.5 rounded-lg hover:bg-gray-100">
@@ -284,7 +291,6 @@ export default function ProductsPage() {
               { label: "Giá (VND) *",        key: "price",         placeholder: "890000" },
               { label: "Giá gốc (VND)",      key: "originalPrice", placeholder: "1000000" },
               { label: "Số lượng tồn kho *", key: "stock",         placeholder: "10" },
-              { label: "Số cánh hoa",        key: "petals",        placeholder: "6" },
             ].map(({ label, key, placeholder }) => (
               <div key={key}>
                 <label className="text-xs font-medium text-gray-500 block mb-1">{label}</label>
@@ -327,13 +333,14 @@ export default function ProductsPage() {
           <div className="px-5 py-4 border-t border-gray-100">
             <button onClick={handleSave} disabled={saving}
               className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium text-white disabled:opacity-60"
-              style={{ background: "linear-gradient(135deg, #f9a8d4, #db2777)" }}
+              style={{ background: "#f4b6c2", color: "#333333" }}
             >
               <Save size={14} />
               {saving ? "Đang lưu..." : (editing ? "Cập nhật" : "Tạo sản phẩm")}
             </button>
           </div>
-        </div>
+          </div>
+        </>
       )}
     </div>
   );
